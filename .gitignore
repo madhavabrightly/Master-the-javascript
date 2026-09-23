@@ -1,0 +1,12 @@
+# Tool state — not part of the course
+.commandcode/
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp

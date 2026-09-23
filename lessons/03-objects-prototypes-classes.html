@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category 3 — Objects, Prototypes &amp; Classes | Master the JavaScript</title>
+<meta name="description" content="Primitives vs objects, the prototype chain, this binding, classes, property descriptors and deep copying — with every example runnable in your browser.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600;650;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/lesson.css">
+<link rel="stylesheet" href="../assets/css/playground.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="progress-rail"><div class="progress-bar"></div></div>
+
+<div class="bg-field" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <span>Master the JavaScript <span class="brand-sub">/ category 03</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#tracks">Tracks</a>
+      <a href="#playground">Playground</a>
+      <a class="is-active" href="03-objects-prototypes-classes.html">Category 3</a>
+      <a class="nav-cta" href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">
+        GitHub
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="../index.html">Home</a>
+  <a href="#primitives">01 &middot; Primitives vs objects</a>
+  <a href="#prototype-chain">02 &middot; The prototype chain</a>
+  <a href="#this">03 &middot; this binding</a>
+  <a href="#classes">04 &middot; Classes</a>
+  <a href="#descriptors">05 &middot; Descriptors &amp; copying</a>
+  <a href="#iterables">06 &middot; Iterables, Map &amp; Set</a>
+  <a href="#closures">07 &middot; Closures &amp; private state</a>
+  <a href="#composition">08 &middot; Composition over inheritance</a>
+  <a href="#playground">Playground</a>
+  <a href="#checkpoint">Checkpoint quiz</a>
+</div>
+
+<main id="main">
+<div class="layer">
+  <div class="lesson-shell">
+
+    <aside class="lesson-aside">
+      <div class="aside-label">On this page</div>
+      <ul class="toc">
+        <li><a href="#primitives">Primitives vs objects</a></li>
+        <li class="toc-sub"><a href="#copying">Shallow vs deep copy</a></li>
+        <li><a href="#prototype-chain">The prototype chain</a></li>
+        <li><a href="#this">this binding</a></li>
+        <li><a href="#classes">Classes</a></li>
+        <li><a href="#descriptors">Descriptors &amp; copying</a></li>
+        <li><a href="#iterables">Iterables, Map &amp; Set</a></li>
+        <li><a href="#closures">Closures &amp; private state</a></li>
+        <li><a href="#composition">Composition over inheritance</a></li>
+        <li><a href="#playground">Playground</a></li>
+        <li><a href="#checkpoint">Checkpoint</a></li>
+      </ul>
+
+      <div class="aside-progress">
+        <div class="pct">0% read</div>
+        <div class="bar"><i></i></div>
+      </div>
+    </aside>
+
+    <div>
+
+      <div class="lesson-head">
+        <div class="crumbs">
+          <a href="../index.html">Home</a>
+          <span>/</span>
+          <span>Category 03</span>
+          <span>/</span>
+          <span>Objects, Prototypes &amp; Classes</span>
+        </div>
+        <h1>Objects, Prototypes &amp; Classes</h1>
+        <p class="sub">
+          Reference semantics, the prototype chain, what <code>this</code> actually points at, and
+          what <code>class</code> really is underneath. Get these right and most "weird JavaScript"
+          behaviour stops being weird.
+        </p>
+        <div class="lesson-facts">
+          <span><i></i> 8 sections</span>
+          <span><i></i> 45+ runnable examples</span>
+          <span><i></i> ~65 min read</span>
+          <span><i></i> Level: beginner &rarr; advanced</span>
+        </div>
+      </div>
+
+      <article class="prose">
+
+        <!-- ========================================================== 01 -->
+        <section id="primitives">
+          <h2><span class="h2-num">01 — Section</span>Primitives vs Objects</h2>
+
+          <p>
+            Almost everything in JavaScript is an object — but not quite everything. There are
+            <strong>seven primitive types</strong>, and they behave differently in one crucial way.
+          </p>
+
+          <ul>
+            <li><code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code>, <code>symbol</code>, <code>bigint</code></li>
+          </ul>
+
+          <p>
+            <strong>Everything else is an object</strong> — including arrays, functions, dates,
+            regexes and maps. The difference that matters every single day is how they're assigned.
+          </p>
+
+          <p>
+            <strong>Primitives are copied by value. Objects are copied by reference.</strong>
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">value.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">let a = 10;
+let b = a;      // b gets its own copy of the number
+b = 20;
+
+console.log(a, b);   // 10 20 — a is untouched</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">reference.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const original = { name: 'Alice' };
+const alias = original;     // both names point at the SAME object
+
+alias.name = 'Bob';
+
+console.log(original.name);            // "Bob" — not a copy!
+console.log(original === alias);       // true — literally one object</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">const does not make things immutable</div>
+              <p>
+                <code>const</code> locks the <em>binding</em>, not the contents. You cannot
+                reassign <code>original = {}</code>, but <code>original.name = 'Bob'</code> is
+                perfectly legal. To actually prevent changes you need <code>Object.freeze()</code>,
+                covered in section 05.
+              </p>
+            </div>
+          </div>
+
+          <h3>Autoboxing — why primitives have methods</h3>
+
+          <p>
+            Strings are primitives, so how does <code>'abc'.toUpperCase()</code> work? JavaScript
+            creates a temporary wrapper object, calls the method on it, and throws it away. The
+            primitive itself never changes — which is why strings are immutable.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">autoboxing.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const name = 'alice';
+
+console.log(name.toUpperCase());   // "ALICE"
+console.log(name);                 // "alice" — unchanged
+
+// What happens internally, roughly:
+console.log(new String(name).toUpperCase());</code></pre>
+          </div>
+
+          <h3 id="copying">Shallow vs deep copy</h3>
+
+          <p>
+            Since objects are shared by reference, "copying" one needs care. Spread and
+            <code>Object.assign</code> make a <strong>shallow</strong> copy: the top level is new,
+            but nested objects are still shared.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">shallow.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const user = { name: 'Alice', address: { city: 'Berlin' } };
+const shallow = { ...user };
+
+shallow.name = 'Carol';            // safe — a new top-level property
+shallow.address.city = 'Paris';    // leaks! address is the SAME object
+
+console.log(user.name);                    // "Alice"
+console.log(user.address.city);            // "Paris"  &lt;-- shared</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">deep.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const user = { name: 'Alice', address: { city: 'Berlin' } };
+const deep = structuredClone(user);
+
+deep.address.city = 'Lisbon';
+
+console.log(user.address.city);    // "Berlin" — completely independent
+console.log(deep.address.city);    // "Lisbon"</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">structuredClone vs JSON</div>
+              <p>
+                The old deep-copy trick <code>JSON.parse(JSON.stringify(obj))</code> silently
+                destroys <code>Date</code> objects, <code>undefined</code>, functions, <code>Map</code>,
+                <code>Set</code> and <code>NaN</code>. <code>structuredClone</code> is built into
+                every modern runtime and handles all of them — but still can't clone functions or
+                class prototypes.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Seven primitives copy by value; everything else copies by reference.</li>
+            <li><code>const</code> protects the binding, not the object's contents.</li>
+            <li>Spread and <code>Object.assign</code> are shallow — nested objects stay shared.</li>
+            <li>Use <code>structuredClone</code> for a genuine deep copy.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 02 -->
+        <section id="prototype-chain">
+          <h2><span class="h2-num">02 — Section</span>The Prototype Chain</h2>
+
+          <p>
+            <strong>Every object carries an invisible link to another object, called its
+            prototype.</strong> When you read a property that isn't on the object itself, JavaScript
+            follows that link and looks there. If it isn't there either, it follows <em>that</em>
+            object's link, and so on until it hits <code>null</code>.
+          </p>
+
+          <p>That's the entire inheritance model. There are no classes underneath — only this chain.</p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">object-create.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const animal = {
+  breathe() {
+    return 'inhale... exhale...';
+  }
+};
+
+const dog = Object.create(animal);   // dog's prototype IS animal
+dog.bark = () =&gt; 'woof';
+
+console.log(dog.bark());     // "woof"    — own property
+console.log(dog.breathe());  // "inhale... exhale..." — found on the prototype
+
+console.log(Object.getPrototypeOf(dog) === animal);   // true
+console.log(Object.getPrototypeOf(animal) === Object.prototype);  // true</code></pre>
+          </div>
+
+          <h3><code>Fn.prototype</code> is not the same as <code>[[Prototype]]</code></h3>
+
+          <p>
+            This trips up almost everyone. Every function has a <code>.prototype</code> property —
+            but that's not the function's own prototype. It's the object that will become the
+            prototype of instances created with <code>new</code>.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">constructor-function.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function User(name) {
+  this.name = name;
+}
+
+// Methods go on the prototype so every instance SHARES one copy
+User.prototype.greet = function () {
+  return `Hi, I'm ${this.name}`;
+};
+
+const alice = new User('Alice');
+
+console.log(alice.greet());                                // "Hi, I'm Alice"
+console.log(Object.getPrototypeOf(alice) === User.prototype);  // true
+console.log(alice.hasOwnProperty('greet'));                // false — it's inherited</code></pre>
+          </div>
+
+          <h3>Own properties vs inherited ones</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">own-vs-inherited.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const base = { role: 'user' };
+const admin = Object.create(base);
+admin.name = 'Alice';
+
+console.log(admin.name);                      // "Alice"  — own
+console.log(admin.role);                      // "user"   — inherited
+
+console.log(admin.hasOwnProperty('name'));    // true
+console.log(admin.hasOwnProperty('role'));    // false
+console.log('role' in admin);                 // true  — `in` walks the chain
+console.log(Object.keys(admin));              // ["name"] — only own, enumerable</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Don't use <code>__proto__</code></div>
+              <p>
+                <code>obj.__proto__</code> still works and you'll see it everywhere, but it's a
+                legacy accessor on <code>Object.prototype</code> — slow, and a genuine security risk
+                when the key comes from user input. Use <code>Object.getPrototypeOf()</code> and
+                <code>Object.setPrototypeOf()</code> instead.
+              </p>
+            </div>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Object.create(null) for pure dictionaries</div>
+              <p>
+                A normal object inherits things like <code>constructor</code>,
+                <code>toString</code> and <code>hasOwnProperty</code>. If you're using an object as a
+                lookup table keyed by user data, <code>Object.create(null)</code> gives you a truly
+                empty object with no inherited keys to collide with.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Property lookup walks up the prototype chain and stops at <code>null</code>.</li>
+            <li><code>Fn.prototype</code> becomes the prototype of instances made with <code>new</code>.</li>
+            <li><code>hasOwnProperty</code> checks one level; <code>in</code> checks the whole chain.</li>
+            <li><code>Object.create(null)</code> gives you a dictionary with no inherited baggage.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 03 -->
+        <section id="this">
+          <h2><span class="h2-num">03 — Section</span>What <code>this</code> Actually Is</h2>
+
+          <p>
+            <strong><code>this</code> is decided when a function is called, not when it's
+            defined.</strong> That one sentence resolves most confusion. The same function can have
+            a different <code>this</code> on every call, depending on how you invoked it.
+          </p>
+
+          <p>Four rules, in priority order:</p>
+
+          <ol>
+            <li><strong><code>new</code></strong> — a brand new object, created for the call.</li>
+            <li><strong>Explicit</strong> — <code>call</code>, <code>apply</code> or <code>bind</code> decides it.</li>
+            <li><strong>Implicit</strong> — <code>obj.method()</code> makes <code>this</code> the object before the dot.</li>
+            <li><strong>Default</strong> — <code>undefined</code> in strict mode (which modules and classes always are), otherwise the global object.</li>
+          </ol>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">implicit-and-lost.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const button = {
+  label: 'Save',
+  click() {
+    return this.label;
+  }
+};
+
+console.log(button.click());     // "Save" — implicit: this is button
+
+// Detach the method and the link is gone
+const detached = button.click;
+console.log(detached());         // undefined — nothing before the dot
+
+// Bind it to keep the link
+const fixed = button.click.bind(button);
+console.log(fixed());            // "Save"</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The classic bug</div>
+              <p>
+                <code>setTimeout(this.update, 100)</code> loses <code>this</code>, because the
+                callback is invoked with no owning object. Same for
+                <code>array.forEach(this.handler)</code> and every event listener. Fix it with
+                <code>.bind(this)</code>, an arrow function, or by passing
+                <code>() =&gt; this.update()</code>.
+              </p>
+            </div>
+          </div>
+
+          <h3>Arrow functions capture <code>this</code> lexically</h3>
+
+          <p>
+            An arrow function has no <code>this</code> of its own. It uses whatever
+            <code>this</code> was in the surrounding scope when it was written — and it cannot be
+            changed, not even by <code>call</code> or <code>bind</code>.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">arrow-vs-function.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const timer = {
+  seconds: 0,
+
+  startArrow() {
+    setInterval(() =&gt; {
+      this.seconds++;          // arrow: this is `timer` — works
+      console.log(this.seconds);
+    }, 1000);
+  },
+
+  startFunction() {
+    setInterval(function () {
+      this.seconds++;          // plain function: this is NOT timer
+      console.log(this.seconds);   // NaN
+    }, 1000);
+  }
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">explicit.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function introduce() {
+  return `I am ${this.name}`;
+}
+
+const alice = { name: 'Alice' };
+const bob = { name: 'Bob' };
+
+console.log(introduce.call(alice));    // "I am Alice"
+console.log(introduce.apply(bob));     // "I am Bob"
+
+const boundToAlice = introduce.bind(alice);
+console.log(boundToAlice());           // "I am Alice" — locked in
+
+// `call` and `apply` differ only in how arguments are passed
+function add(a, b) { return this.base + a + b; }
+console.log(add.call({ base: 10 }, 1, 2));     // 13 — arguments listed
+console.log(add.apply({ base: 10 }, [1, 2]));  // 13 — arguments as an array</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li><code>this</code> is determined at call time by the call site.</li>
+            <li>Priority: <code>new</code> &gt; explicit bind/call/apply &gt; <code>obj.method()</code> &gt; default.</li>
+            <li>Arrow functions inherit <code>this</code> and cannot be rebound.</li>
+            <li>Passing a method as a callback detaches it from its object.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 04 -->
+        <section id="classes">
+          <h2><span class="h2-num">04 — Section</span>Classes</h2>
+
+          <p>
+            <strong><code>class</code> is syntax sugar over constructor functions and
+            prototypes.</strong> There is no new inheritance mechanism — but the syntax is far
+            harder to misuse, and it always runs in strict mode.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">User.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class User {
+  #password;                    // truly private — not just a naming convention
+
+  constructor(name, password) {
+    this.name = name;
+    this.#password = password;
+  }
+
+  get displayName() {           // getter, used like a property
+    return `@${this.name.toLowerCase()}`;
+  }
+
+  checkPassword(attempt) {
+    return attempt === this.#password;
+  }
+
+  static fromObject(obj) {      // lives on the class, not on instances
+    return new User(obj.name, obj.password);
+  }
+}
+
+const alice = new User('Alice', 'hunter2');
+
+console.log(alice.displayName);              // "@alice"
+console.log(alice.checkPassword('nope'));    // false
+console.log(User.fromObject({ name: 'Bob', password: 'x' }).displayName);  // "@bob"</code></pre>
+          </div>
+
+          <p>
+            <code>#password</code> is enforced by the language. Outside the class body, the name
+            doesn't even exist — reading it throws a <code>SyntaxError</code> at parse time, not a
+            runtime <code>undefined</code>. That's a real privacy guarantee the old
+            <code>_underscore</code> convention never gave you.
+          </p>
+
+          <h3>Methods are shared, not copied</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">shared-methods.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class Counter {
+  increment() {
+    this.value++;
+  }
+}
+
+const a = new Counter();
+const b = new Counter();
+
+console.log(a.increment === b.increment);   // true — ONE function, on the prototype
+
+// Compare with an arrow property assigned per instance:
+class Other {
+  increment = () =&gt; { this.value++; };
+}
+
+const c = new Other();
+const d = new Other();
+console.log(c.increment === d.increment);   // false — a new closure each time</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Which should you use?</div>
+              <p>
+                Prototype methods are shared and memory-efficient — use them by default. Instance
+                arrow properties cost one closure per object, but they're bound to the instance, so
+                they survive being passed as callbacks. Use them for handlers you'll hand off.
+              </p>
+            </div>
+          </div>
+
+          <h3>Inheritance with <code>extends</code></h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">animals.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  speak() {
+    return `${this.name} makes a sound`;
+  }
+}
+
+class Dog extends Animal {
+  speak() {
+    return `${this.name} barks`;      // override
+  }
+
+  speakLoudly() {
+    return this.speak().toUpperCase() + '!';   // reuse via this
+  }
+}
+
+const rex = new Dog('Rex');
+
+console.log(rex.speak());             // "Rex barks"
+console.log(rex.speakLoudly());       // "REX BARKS!"
+console.log(rex instanceof Dog);      // true
+console.log(rex instanceof Animal);   // true — the chain reaches Animal</code></pre>
+          </div>
+
+          <p>
+            If the subclass defines a <code>constructor</code>, it must call
+            <code>super(...)</code> before touching <code>this</code> — the parent is what actually
+            creates the object.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">super.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+class Dog extends Animal {
+  constructor(name, breed) {
+    super(name);            // must run first
+    this.breed = breed;
+    console.log(this.breed);   // now `this` exists
+  }
+}</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li><code>class</code> is sugar over prototypes, but always strict and harder to misuse.</li>
+            <li>Methods live on the prototype and are shared by every instance.</li>
+            <li><code>#private</code> fields are enforced by the language, not by convention.</li>
+            <li><code>extends</code> wires the prototype chain; <code>super()</code> creates the object.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 05 -->
+        <section id="descriptors">
+          <h2><span class="h2-num">05 — Section</span>Descriptors &amp; Copying</h2>
+
+          <p>
+            Every property is more than a value. It carries three hidden flags that decide whether
+            it can be changed, listed, or deleted.
+          </p>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Flag</th><th>Default (plain object)</th><th>Controls</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>writable</code></td><td><code>true</code></td><td>whether the value can be reassigned</td></tr>
+                <tr><td><code>enumerable</code></td><td><code>true</code></td><td>whether it appears in <code>for...in</code>, <code>Object.keys</code>, spread</td></tr>
+                <tr><td><code>configurable</code></td><td><code>true</code></td><td>whether it can be deleted or redefined</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">define-property.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const user = { name: 'Alice' };
+
+Object.defineProperty(user, 'id', {
+  value: 42,
+  writable: false,       // cannot be reassigned
+  enumerable: false,     // hidden from loops and Object.keys
+  configurable: false    // cannot be deleted or redefined
+});
+
+user.id = 99;                       // silently ignored (throws in strict mode)
+
+console.log(user.id);               // 42
+console.log(Object.keys(user));     // ["name"] — id is not enumerable
+console.log(user.hasOwnProperty('id'));  // true — it exists, just hidden</code></pre>
+          </div>
+
+          <h3>Getters and setters</h3>
+
+          <p>
+            A getter looks like a property from the outside but runs code on every read. That's how
+            computed values stay in sync without you manually updating them.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">getters.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const circle = {
+  radius: 2,
+
+  get area() {
+    return Math.PI * this.radius ** 2;
+  },
+
+  set diameter(value) {
+    this.radius = value / 2;
+  }
+};
+
+console.log(circle.area.toFixed(2));   // "12.57"
+
+circle.diameter = 10;                  // uses the setter
+console.log(circle.radius);            // 5
+console.log(circle.area.toFixed(2));   // "78.54" — recomputed on read
+
+console.log(Object.keys(circle));      // ["radius"] — area is not a stored key</code></pre>
+          </div>
+
+          <h3>Freezing — and why it's shallow</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">freeze.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const config = Object.freeze({
+  apiUrl: 'https://api.example.com',
+  retries: 3
+});
+
+config.retries = 99;                  // ignored
+console.log(config.retries);          // 3 — unchanged
+console.log(Object.isFrozen(config)); // true
+
+// But freeze is SHALLOW — nested objects are still mutable
+const settings = Object.freeze({ inner: { theme: 'dark' } });
+settings.inner.theme = 'light';       // works fine
+console.log(settings.inner.theme);    // "light"
+
+// Deep freeze needs a walk
+function deepFreeze(obj) {
+  Object.values(obj).forEach((value) =&gt; {
+    if (value &amp;&amp; typeof value === 'object') deepFreeze(value);
+  });
+  return Object.freeze(obj);
+}</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Freeze, seal, preventExtensions</div>
+              <p>
+                <strong>preventExtensions</strong> stops new properties being added.
+                <strong>seal</strong> also stops deletions. <strong>freeze</strong> also makes
+                existing values non-writable. All three are shallow.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Properties carry <code>writable</code>, <code>enumerable</code> and <code>configurable</code> flags.</li>
+            <li><code>enumerable: false</code> hides a property from loops, <code>Object.keys</code> and spread.</li>
+            <li>Getters compute on read; they are not stored values.</li>
+            <li><code>Object.freeze</code> is shallow — deep immutability needs a recursive walk.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 06 -->
+        <section id="iterables">
+          <h2><span class="h2-num">06 — Section</span>Iterables, Map &amp; Set</h2>
+
+          <p>
+            Arrays aren't special — they just implement the <strong>iteration protocol</strong>.
+            Anything that does can be spread, destructured and looped with <code>for...of</code>,
+            including your own objects.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">range.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Any object with a [Symbol.iterator] method is iterable
+const range = {
+  from: 1,
+  to: 5,
+
+  [Symbol.iterator]() {
+    let current = this.from;
+    const last = this.to;
+
+    return {
+      next: () =&gt; current &lt;= last
+        ? { value: current++, done: false }
+        : { value: undefined, done: true }
+    };
+  }
+};
+
+console.log([...range]);          // [1, 2, 3, 4, 5]
+const [first, second] = range;    // 1 2
+for (const n of range) process.stdout.write(n + ' ');</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title"><code>for...of</code> vs <code>for...in</code></div>
+              <p>
+                They are not interchangeable. <code>for...of</code> iterates <strong>values</strong>
+                and only works on iterables. <code>for...in</code> iterates <strong>keys</strong> and
+                walks the prototype chain — on an array it gives you <code>"0"</code>,
+                <code>"1"</code> as <em>strings</em>, plus any inherited enumerable property. Use
+                <code>for...of</code> for data; avoid <code>for...in</code> on arrays entirely.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">spread-and-destructure.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const list = ['a', 'b', 'c'];
+
+const [head, ...tail] = list;     // "a", ["b", "c"]
+const copy = [...list];
+const chars = [...'hello'];       // ['h', 'e', 'l', 'l', 'o']
+
+// Works because strings, arrays, Maps, Sets, generators and
+// Node streams all implement the same protocol.
+const entries = [...new Map([['a', 1]])];   // [['a', 1]]</code></pre>
+          </div>
+
+          <h3>Map — keys that aren't strings</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">map.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const users = new Map();
+
+users.set('alice@example.com', { name: 'Alice' });
+users.set(42, 'the answer');
+users.set({ id: 1 }, 'an object as a key');   // objects can be keys
+
+console.log(users.size);              // 3 — a property, not a count-up
+console.log(users.get(42));           // "the answer"
+console.log(users.has('nobody'));     // false
+
+// Iteration is ordered by insertion, and gives you [key, value]
+for (const [key, value] of users) {
+  console.log(key, value);
+}
+
+// Convert both directions
+const fromObject = new Map(Object.entries({ a: 1, b: 2 }));
+const backToObject = Object.fromEntries(fromObject);</code></pre>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th></th><th>Object</th><th>Map</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Key types</td><td>strings and symbols only</td><td>anything, including objects</td></tr>
+                <tr><td>Key order</td><td>integer-like keys are reordered first</td><td>strict insertion order</td></tr>
+                <tr><td>Size</td><td><code>Object.keys(o).length</code></td><td><code>map.size</code></td></tr>
+                <tr><td>Prototype keys</td><td>inherits <code>toString</code>, <code>constructor</code>…</td><td>none — no accidental collisions</td></tr>
+                <tr><td>Frequent add/remove</td><td>deletes leave holes behind</td><td>built for it, optimised</td></tr>
+                <tr><td>JSON</td><td>direct</td><td>needs <code>Object.fromEntries</code> first</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Set — uniqueness for free</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">set.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const tags = new Set(['js', 'node', 'js', 'web']);
+console.log(tags.size);          // 3 — duplicates were dropped
+
+// The classic one-liner: dedupe an array
+const unique = [...new Set([1, 2, 2, 3, 1])];    // [1, 2, 3]
+
+// Membership is O(1) rather than scanning
+console.log(tags.has('node'));   // true
+
+// Set algebra
+const a = new Set([1, 2, 3]);
+const b = new Set([2, 3, 4]);
+
+const intersection = new Set([...a].filter((x) =&gt; b.has(x)));   // {2, 3}
+const union = new Set([...a, ...b]);                            // {1, 2, 3, 4}
+const difference = new Set([...a].filter((x) =&gt; !b.has(x)));    // {1}</code></pre>
+          </div>
+
+          <h3>WeakMap — data the collector can reclaim</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">weakmap.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const privateData = new WeakMap();
+
+class Account {
+  constructor(balance) {
+    privateData.set(this, { balance });
+  }
+
+  deposit(amount) {
+    privateData.get(this).balance += amount;
+    return this;
+  }
+
+  get balance() {
+    return privateData.get(this).balance;
+  }
+}
+
+const account = new Account(100);
+account.deposit(50);
+console.log(account.balance);      // 150
+
+// When `account` is garbage collected, its WeakMap entry goes with it.
+// A plain Map would hold the instance alive forever — a classic memory leak.
+// Keys must be objects, and WeakMap is not iterable by design.</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li>The iteration protocol (<code>Symbol.iterator</code>) is what makes spread, destructuring and <code>for...of</code> work.</li>
+            <li><code>for...of</code> gives values; <code>for...in</code> gives keys and walks the prototype chain.</li>
+            <li>Use <code>Map</code> for non-string keys, guaranteed order and a real <code>size</code>.</li>
+            <li><code>WeakMap</code> attaches data to an object without preventing collection.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 07 -->
+        <section id="closures">
+          <h2><span class="h2-num">07 — Section</span>Closures &amp; Private State</h2>
+
+          <p>
+            <strong>A closure is a function bundled with the scope it was created in.</strong> Every
+            function has one — you only notice it when the inner function outlives the outer call and
+            the variables are still there.
+          </p>
+
+          <p>
+            That one mechanism gives you private state, memoisation, factories and half the utility
+            functions you'll ever write.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">counter.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function counter() {
+  let count = 0;                 // no outside access, ever
+
+  return {
+    increment: () =&gt; ++count,
+    reset: () =&gt; (count = 0),
+    get value() { return count; }
+  };
+}
+
+const c = counter();
+c.increment();
+c.increment();
+
+console.log(c.value);    // 2
+console.log(c.count);    // undefined — there is no such property
+
+// Each call creates a brand new scope
+const other = counter();
+console.log(other.value);   // 0 — completely independent</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The loop bug everyone meets once</div>
+              <p>
+                <code>var</code> is function-scoped, so every iteration shares one binding. By the
+                time the timers run, the loop is finished and <code>i</code> is <code>3</code>.
+                <code>let</code> creates a <em>new binding per iteration</em>, which is why the same
+                code prints <code>0 1 2</code>.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">loop-scope.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">for (var i = 0; i &lt; 3; i++) {
+  setTimeout(() =&gt; console.log('var:', i), 0);     // 3 3 3
+}
+
+for (let i = 0; i &lt; 3; i++) {
+  setTimeout(() =&gt; console.log('let:', i), 0);     // 0 1 2
+}
+
+// Before `let`, this was the fix — a function called per iteration
+for (var j = 0; j &lt; 3; j++) {
+  (function (captured) {
+    setTimeout(() =&gt; console.log('iife:', captured), 0);
+  })(j);
+}</code></pre>
+          </div>
+
+          <h3>Memoise — cache results in a closure</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">memoize.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function memoize(fn) {
+  const cache = new Map();          // lives as long as the returned function
+
+  return function (...args) {
+    const key = JSON.stringify(args);
+
+    if (cache.has(key)) return cache.get(key);
+
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+const slowSquare = memoize((n) =&gt; {
+  console.log('computing', n);
+  return n * n;
+});
+
+slowSquare(4);    // "computing 4"
+slowSquare(4);    // cached — the log does not repeat
+slowSquare(5);    // "computing 5"</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">once.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function once(fn) {
+  let called = false;
+  let result;
+
+  return function (...args) {
+    if (!called) {
+      called = true;
+      result = fn.apply(this, args);
+    }
+    return result;      // later calls get the FIRST result, not a re-run
+  };
+}
+
+const init = once(() =&gt; {
+  console.log('initialising…');
+  return { ready: true };
+});
+
+init();     // "initialising…"
+init();     // silent — returns the cached object</code></pre>
+          </div>
+
+          <h3>The module pattern</h3>
+
+          <p>
+            Before ES modules existed, an immediately-invoked function expression (IIFE) was how you
+            got a private namespace. It's still the clearest way to explain what a closure buys you.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">module-pattern.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const Store = (() =&gt; {
+  const items = new Map();          // private: unreachable from outside
+
+  return {
+    set(key, value) { items.set(key, value); return this; },
+    get(key) { return items.get(key); },
+    has(key) { return items.has(key); },
+    get size() { return items.size; }
+  };
+})();
+
+Store.set('theme', 'dark');
+console.log(Store.size);     // 1
+console.log(Store.items);    // undefined — only the returned surface exists</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Closures vs <code>#private</code></div>
+              <p>
+                Both give real privacy. <code>#private</code> fields are per-instance and checked by
+                the language at parse time; closures are flexible and let you keep data entirely
+                outside the object. Closures cost one scope per instance — which is exactly what
+                makes them good for factories and singletons, and wasteful in a loop creating
+                millions of objects.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>A closure is a function plus the scope it captured.</li>
+            <li><code>let</code> creates a per-iteration binding; <code>var</code> does not.</li>
+            <li>Memoise and <code>once</code> are just closures holding a cache.</li>
+            <li>The module pattern is an IIFE returning only the public surface.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 08 -->
+        <section id="composition">
+          <h2><span class="h2-num">08 — Section</span>Composition Over Inheritance</h2>
+
+          <p>
+            <code>extends</code> is the tool everyone reaches for first and regrets second. Deep
+            hierarchies couple every subclass to every change in the base — and they force you to
+            model things that don't fit.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">the-trap.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class Animal {}
+class Bird extends Animal { fly() { return 'flapping'; } }
+
+// A penguin is a Bird… but it cannot fly.
+// It inherits `fly` anyway, and callers have no way to know.
+class Penguin extends Bird {}
+
+const pingu = new Penguin();
+console.log(pingu.fly());     // "flapping" — a lie baked into the type</code></pre>
+          </div>
+
+          <p>
+            The problem isn't the penguin. It's that "is-a" inheritance forces you to inherit
+            <em>everything</em> at once, including things that don't apply.
+            <strong>Composition lets you pick the abilities you actually have.</strong>
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">behaviours.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Small, independent behaviour factories
+const canWalk = ({ name }) =&gt; ({ walk: () =&gt; `${name} walks` });
+const canSwim = ({ name }) =&gt; ({ swim: () =&gt; `${name} swims` });
+const canFly  = ({ name }) =&gt; ({ fly:  () =&gt; `${name} flies` });
+
+function createPenguin(name) {
+  const state = { name };
+  return { name, ...canWalk(state), ...canSwim(state) };
+}
+
+function createDuck(name) {
+  const state = { name };
+  return { name, ...canWalk(state), ...canSwim(state), ...canFly(state) };
+}
+
+const pingu = createPenguin('Pingu');
+console.log(pingu.swim());     // "Pingu swims"
+console.log(pingu.fly);        // undefined — genuinely has no such ability
+
+// pingu.fly();
+// TypeError: pingu.fly is not a function — fail loudly, not silently</code></pre>
+          </div>
+
+          <h3>Mixins when you do want classes</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">mixins.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// A mixin is a function that takes a class and returns a richer one
+const Serializable = (Base) =&gt; class extends Base {
+  toJSON() {
+    return JSON.stringify({ ...this });
+  }
+};
+
+const Comparable = (Base) =&gt; class extends Base {
+  equals(other) {
+    return JSON.stringify(this) === JSON.stringify(other);
+  }
+};
+
+class User {
+  constructor(name) { this.name = name; }
+}
+
+class RichUser extends Serializable(Comparable(User)) {}
+
+const alice = new RichUser('Alice');
+console.log(alice.toJSON());                        // {"name":"Alice"}
+console.log(alice.equals(new RichUser('Alice')));   // true</code></pre>
+          </div>
+
+          <h3>Delegation — hold it, don't inherit it</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">delegation.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class ConsoleLogger {
+  log(message) {
+    console.log(`[log] ${message}`);
+  }
+}
+
+class ApiClient {
+  constructor(logger = new ConsoleLogger()) {
+    this.logger = logger;        // composed and swappable
+  }
+
+  async get(url) {
+    this.logger.log(`GET ${url}`);
+    return fetch(url);
+  }
+}
+
+// In a test, you pass a fake — impossible if Logger were the base class
+const silentClient = new ApiClient({ log: () =&gt; {} });</code></pre>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th></th><th>Inheritance (<code>extends</code>)</th><th>Composition</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Relationship</td><td>is-a</td><td>has-a / can-do</td></tr>
+                <tr><td>Coupling</td><td>tight — base changes ripple down</td><td>loose — swap pieces freely</td></tr>
+                <tr><td>Unused ability</td><td>inherited anyway (the penguin problem)</td><td>simply not attached</td></tr>
+                <tr><td>Testing</td><td>hard to isolate a base class</td><td>inject fakes at the seam</td></tr>
+                <tr><td>Best for</td><td>shallow, stable is-a with a real shared contract</td><td>almost everything else</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">The practical rule</div>
+              <p>
+                If a subclass overrides most of what it inherits, or throws from inherited methods,
+                the hierarchy is wrong. Reach for composition. One level of <code>extends</code> for
+                a genuine is-a relationship is fine — three levels is a design smell.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Inheritance forces you to take abilities you don't have.</li>
+            <li>Behaviour factories let objects pick up exactly what they need.</li>
+            <li>Mixins compose classes without deep hierarchies.</li>
+            <li>Delegation (holding a dependency) is what makes code testable.</li>
+          </ul>
+        </section>
+
+        <!-- =================================================== PLAYGROUND -->
+        <section id="playground">
+          <h2><span class="h2-num">Playground</span>Prove it yourself</h2>
+
+          <p>
+            Everything in this category is observable. Run the code below, then change it — break
+            the prototype link, detach a method, and watch what happens.
+          </p>
+
+          <div class="playground" data-playground data-entry="main.js">
+            <div class="pg-bar">
+              <span class="pg-badge"><i></i> objects sandbox</span>
+              <div class="pg-tabs">
+                <button class="pg-tab" type="button" data-file="main.js">main.js</button>
+              </div>
+              <div class="pg-actions">
+                <button class="pg-btn pg-clear" type="button">Clear</button>
+                <button class="pg-btn pg-reset" type="button">Reset</button>
+                <button class="pg-btn pg-btn-run pg-run" type="button">Run &#9654;</button>
+              </div>
+            </div>
+
+            <div class="pg-editors">
+              <div class="pg-editor is-active" data-name="main.js">
+                <textarea rows="24">// ---- the prototype chain ----
+const animal = { breathe: () => 'breathe' };
+const dog = Object.create(animal);
+dog.bark = () => 'woof';
+
+console.log('own bark:      ', dog.hasOwnProperty('bark'));
+console.log('own breathe:   ', dog.hasOwnProperty('breathe'));
+console.log('in breathe:    ', 'breathe' in dog);
+console.log('proto is animal', Object.getPrototypeOf(dog) === animal);
+
+// ---- methods are shared ----
+class Counter {
+  constructor() { this.value = 0; }
+  increment() { this.value++; return this; }
+}
+
+const a = new Counter();
+const b = new Counter();
+a.increment().increment();
+
+console.log('a.value:', a.value, '| b.value:', b.value);
+console.log('methods shared?', a.increment === b.increment);
+
+// ---- this binding ----
+const button = { label: 'Save', click() { return this.label; } };
+
+console.log('implicit this:', button.click());
+
+const detached = button.click;
+console.log('detached this:', detached());
+
+console.log('bound this:   ', button.click.bind(button)());
+
+// ---- shallow copy leaks ----
+const original = { name: 'Alice', address: { city: 'Berlin' } };
+const shallow = { ...original };
+shallow.name = 'Carol';
+shallow.address.city = 'Paris';
+
+console.log('top level safe:', original.name);
+console.log('nested leaked: ', original.address.city);
+
+const deep = structuredClone(original);
+deep.address.city = 'Lisbon';
+console.log('deep isolated: ', original.address.city);</textarea>
+              </div>
+            </div>
+
+            <div class="pg-out-wrap">
+              <div class="pg-out-label">console output</div>
+              <div class="pg-out"></div>
+            </div>
+          </div>
+
+          <div class="pg-meta">
+            <span>Try deleting <code>dog.bark</code> — <code>breathe</code> still resolves up the chain.</span>
+            <span><code>Ctrl</code>+<code>Enter</code> runs.</span>
+          </div>
+        </section>
+
+        <!-- =================================================== CHECKPOINT -->
+        <section id="checkpoint">
+          <h2><span class="h2-num">Checkpoint</span>Test yourself</h2>
+
+          <p>Three questions. Click an answer to check it — the explanation appears underneath.</p>
+
+          <div class="quiz">
+            <div class="quiz-head">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Objects &amp; prototypes checkpoint
+            </div>
+            <div class="quiz-body">
+
+              <div class="quiz-q">
+                <p class="q-text">1. <code>const copy = { ...original }</code> — what did you just make?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> A deep copy — fully independent of the original.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> A shallow copy — nested objects are still shared.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> A reference — <code>copy</code> and <code>original</code> are the same object.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> A frozen snapshot that can't be modified.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. Spread creates a new top-level object, but every nested value is copied by reference. Use <code>structuredClone</code> when you need real isolation.</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">2. What decides the value of <code>this</code> inside a function?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> Where the function was defined.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> How the function was called.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> The object owning the file it lives in.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> Whether the function is declared with <code>function</code> or <code>=&gt;</code>.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. <code>this</code> is resolved at call time from the call site — unless the function is an arrow, which captures the enclosing <code>this</code> lexically.</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">3. Where do methods declared with the shorthand syntax in a class body live?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> Copied onto every instance, one closure each.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> On the prototype — one shared function for all instances.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> On the class object itself, like a static.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> Nowhere until you call them once.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. Class methods go on <code>Class.prototype</code>, so <code>a.method === b.method</code> is <code>true</code>. Instance arrow-function properties are the ones that create a new closure per object.</p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </article>
+
+      <div class="lesson-outro">
+        <h2>What you can do now</h2>
+        <p style="color:var(--text-soft);font-size:15.5px;">
+          You know when you're sharing an object and when you've actually copied it, why a missing
+          property resolves up a chain instead of being <code>undefined</code>, what
+          <code>this</code> will be at any call site, and what <code>class</code> is doing
+          underneath. That's the difference between writing JavaScript and fighting it.
+        </p>
+
+        <div class="pager">
+          <a href="02-async-and-the-event-loop.html">
+            <span class="p-dir">&larr; Previous</span>
+            <span class="p-title">Category 2 — Async JavaScript &amp; the Event Loop</span>
+          </a>
+          <a class="next" href="04-modern-tooling-and-esm.html">
+            <span class="p-dir">Next &rarr;</span>
+            <span class="p-title">Category 4 — Modern Tooling &amp; ES Modules</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</main>
+
+<button class="to-top" type="button" aria-label="Back to top">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>&copy; <span data-year>2026</span> Master the JavaScript &middot; Category 03 of the course.</span>
+    <nav class="footer-links" aria-label="Course index">
+      <a href="../index.html">Home</a>
+      <a href="01-module-fundamentals.html">01 Modules</a>
+      <a href="02-async-and-the-event-loop.html">02 Async</a>
+      <a href="03-objects-prototypes-classes.html">03 Objects</a>
+      <a href="04-modern-tooling-and-esm.html">04 Tooling</a>
+      <a href="05-advanced-patterns.html">05 Advanced</a>
+      <a href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  if (window.hljs) { hljs.highlightAll(); }
+</script>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/lesson.js"></script>
+<script src="../assets/js/playground.js"></script>
+</body>
+</html>

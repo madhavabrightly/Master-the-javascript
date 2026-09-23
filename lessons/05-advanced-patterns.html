@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category 5 — Advanced Patterns from Real Projects | Master the JavaScript</title>
+<meta name="description" content="Electron IPC, real-time audio state machines, canvas render loops, Node daemon architecture, defensive security, React patterns and testing real systems.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600;650;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/lesson.css">
+<link rel="stylesheet" href="../assets/css/playground.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="progress-rail"><div class="progress-bar"></div></div>
+
+<div class="bg-field" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <span>Master the JavaScript <span class="brand-sub">/ category 05</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#tracks">Tracks</a>
+      <a href="#playground">Playground</a>
+      <a class="is-active" href="05-advanced-patterns.html">Category 5</a>
+      <a class="nav-cta" href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">
+        GitHub
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="../index.html">Home</a>
+  <a href="#electron">01 &middot; Electron &amp; IPC</a>
+  <a href="#audio">02 &middot; Audio state machines</a>
+  <a href="#canvas">03 &middot; Canvas &amp; the render loop</a>
+  <a href="#daemon">04 &middot; Node daemon architecture</a>
+  <a href="#security">05 &middot; Defensive security</a>
+  <a href="#react">06 &middot; React patterns</a>
+  <a href="#testing-real">07 &middot; Testing real systems</a>
+  <a href="#playground">Playground</a>
+  <a href="#checkpoint">Checkpoint quiz</a>
+</div>
+
+<main id="main">
+<div class="layer">
+  <div class="lesson-shell">
+
+    <aside class="lesson-aside">
+      <div class="aside-label">On this page</div>
+      <ul class="toc">
+        <li><a href="#electron">Electron &amp; IPC</a></li>
+        <li class="toc-sub"><a href="#preload">The preload bridge</a></li>
+        <li class="toc-sub"><a href="#electron-security">Sandboxing the renderer</a></li>
+        <li><a href="#audio">Audio state machines</a></li>
+        <li class="toc-sub"><a href="#session-tokens">Session tokens</a></li>
+        <li><a href="#canvas">Canvas &amp; the render loop</a></li>
+        <li class="toc-sub"><a href="#delta-time">Delta time</a></li>
+        <li><a href="#daemon">Node daemon architecture</a></li>
+        <li class="toc-sub"><a href="#learning">Learning &amp; circuit breakers</a></li>
+        <li><a href="#security">Defensive security</a></li>
+        <li><a href="#react">React patterns</a></li>
+        <li><a href="#testing-real">Testing real systems</a></li>
+        <li><a href="#playground">Playground</a></li>
+        <li><a href="#checkpoint">Checkpoint</a></li>
+      </ul>
+
+      <div class="aside-progress">
+        <div class="pct">0% read</div>
+        <div class="bar"><i></i></div>
+      </div>
+    </aside>
+
+    <div>
+
+      <div class="lesson-head">
+        <div class="crumbs">
+          <a href="../index.html">Home</a>
+          <span>/</span>
+          <span>Category 05</span>
+          <span>/</span>
+          <span>Advanced Patterns from Real Projects</span>
+        </div>
+        <h1>Advanced Patterns from Real Projects</h1>
+        <p class="sub">
+          Categories 1–4 taught the language. This one is about <em>building things</em> with it —
+          desktop apps, real-time audio, animated canvases, background daemons and the defensive
+          habits that keep them secure. Every pattern here was extracted from working code.
+        </p>
+        <div class="lesson-facts">
+          <span><i></i> 7 sections</span>
+          <span><i></i> 40+ runnable examples</span>
+          <span><i></i> ~75 min read</span>
+          <span><i></i> Level: advanced</span>
+        </div>
+      </div>
+
+      <article class="prose">
+
+        <div class="callout is-tip">
+          <div class="c-ico" aria-hidden="true">i</div>
+          <div class="c-body">
+            <div class="c-title">Where these patterns came from</div>
+            <p>
+              Nothing in this category is invented for the sake of an example. Each section is a
+              distilled version of code that runs in a real project:
+            </p>
+            <ul>
+              <li><strong>01 — Electron &amp; IPC</strong> from <em>notepadx</em>, a desktop editor with a sandboxed code runner.</li>
+              <li><strong>02 — Audio state machines</strong> from <em>twin</em> and <em>ai-chat</em>, browser voice assistants using VAD and live transcription.</li>
+              <li><strong>03 — Canvas &amp; the render loop</strong> from <em>boids-animation-site</em>.</li>
+              <li><strong>04 — Daemon architecture</strong> from <em>android_js_optimizer_daemon</em>, a long-running device optimiser.</li>
+              <li><strong>05 — Defensive security</strong> from <em>notepadx</em>'s IPC validation and a runtime secret scanner.</li>
+              <li><strong>06–07 — React &amp; testing</strong> from <em>codiii</em> and <em>3d-tree-explorer</em>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ========================================================== 01 -->
+        <section id="electron">
+          <h2><span class="h2-num">01 — Section</span>Desktop Apps with Electron</h2>
+
+          <p>
+            An Electron app is <strong>three separate programs</strong> wearing one window. Getting
+            the boundary between them right is the entire skill — and getting it wrong is how
+            desktop apps become remote-code-execution exploits.
+          </p>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Process</th><th>Runs</th><th>Can it touch the filesystem?</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Main</strong></td><td>Node.js — no DOM</td><td>Yes. Owns windows, files, child processes.</td></tr>
+                <tr><td><strong>Preload</strong></td><td>Node + DOM, sandboxed</td><td>Yes, but must expose only a tiny, deliberate API.</td></tr>
+                <tr><td><strong>Renderer</strong></td><td>Chromium — the web page</td><td>No. And it must stay that way.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">main.js — the composition root</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const path = require('node:path');
+
+function createWindow() {
+  const window = new BrowserWindow({
+    width: 1100,
+    height: 720,
+    backgroundColor: '#0b0b0d',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,      // non-negotiable
+      nodeIntegration: false,      // non-negotiable
+      sandbox: true
+    }
+  });
+
+  window.loadFile('index.html');
+}
+
+app.whenReady().then(() =&gt; {
+  createWindow();
+
+  // macOS keeps the app alive with no windows open
+  app.on('activate', () =&gt; {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('window-all-closed', () =&gt; {
+  if (process.platform !== 'darwin') app.quit();
+});</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The two flags that matter</div>
+              <p>
+                <code>nodeIntegration: true</code> hands the renderer full Node access. Any XSS in
+                your page — a malicious npm package, an injected script, a remote image with a bad
+                URL — becomes <em>arbitrary code execution on the user's machine</em>.
+                <code>contextIsolation: true</code> plus <code>nodeIntegration: false</code> is the
+                default in modern Electron precisely because this went wrong so often.
+              </p>
+            </div>
+          </div>
+
+          <h3 id="preload">The preload bridge</h3>
+
+          <p>
+            The preload script is the <em>only</em> place where the two worlds meet. It should
+            expose a small, explicit, named API — never <code>ipcRenderer</code> itself.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">preload.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('api', {
+  // Request / response — returns a promise in the renderer
+  openFile: () =&gt; ipcRenderer.invoke('file:open'),
+  save: (data) =&gt; ipcRenderer.invoke('file:save', data),
+  run: (data) =&gt; ipcRenderer.invoke('runner:run', data),
+  stop: () =&gt; ipcRenderer.invoke('runner:stop'),
+
+  // Main -> renderer push. Note the callback is wrapped, never passed through.
+  onOutput: (callback) =&gt; {
+    ipcRenderer.on('runner:output', (_event, payload) =&gt; callback(payload));
+  },
+
+  onState: (callback) =&gt;
+    ipcRenderer.on('runner:state', (_event, state) =&gt; callback(state))
+});
+
+// What NOT to do:
+//   contextBridge.exposeInMainWorld('ipc', { send: ipcRenderer.send })
+// That exposes the raw IPC channel — the renderer can now invoke
+// any handler in your main process by name.</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">main.js — handling requests</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">let window;
+
+function send(channel, data) {
+  // The window may already be gone — a stale send throws
+  if (window &amp;&amp; !window.isDestroyed()) {
+    window.webContents.send(channel, data);
+  }
+}
+
+ipcMain.handle('file:open', async () =&gt; {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [{ name: 'JavaScript', extensions: ['js', 'mjs', 'cjs'] }]
+  });
+
+  if (result.canceled || result.filePaths.length === 0) return null;
+
+  return fs.readFile(result.filePaths[0], 'utf8');
+});
+
+ipcMain.handle('file:save', async (_event, data) =&gt; {
+  // Validate before trusting ANYTHING from the renderer
+  if (typeof data?.code !== 'string') {
+    throw new Error('Invalid JavaScript source.');
+  }
+  return saveFile(data);
+});</code></pre>
+          </div>
+
+          <h3 id="electron-security">Sandboxing the renderer</h3>
+
+          <p>
+            Everything arriving over IPC is untrusted input, even though you wrote the renderer. A
+            filename is the classic attack path — <code>../../.ssh/authorized_keys</code> is a
+            perfectly valid string.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">destination.js — validate, then build the path</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function destination(name) {
+  if (
+    typeof name !== 'string' ||
+    name !== path.basename(name) ||              // no directory components
+    /[&lt;&gt;:"/\\|?*\x00-\x1f]/.test(name) ||        // no separators or control chars
+    !/\.(js|mjs|cjs)$/i.test(name)               // extension allow-list
+  ) {
+    throw new Error('Enter a valid .js, .mjs, or .cjs filename.');
+  }
+
+  return path.join(directory, name);
+}</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Four checks, in order of importance</div>
+              <p>
+                <strong>1.</strong> Is it even a string? <strong>2.</strong>
+                <code>basename(name) === name</code> is the single cleanest traversal guard — it
+                rejects anything with a path separator. <strong>3.</strong> An extension allow-list,
+                because you're about to execute this. <strong>4.</strong> Character whitelist for
+                the remaining platform-specific traps.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">runner.js — spawning a child process safely</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const { spawn } = require('node:child_process');
+
+function launch(file) {
+  // NOTE: no `shell: true`, and the command is an array.
+  // With a shell, any metacharacter in `file` becomes a command injection.
+  const child = spawn(process.execPath, [file], {
+    cwd: path.dirname(file),
+    env: { ...process.env, FORCE_COLOR: '0' },
+    stdio: ['pipe', 'pipe', 'pipe'],
+    windowsHide: true
+  });
+
+  child.stdout.on('data', (chunk) =&gt;
+    send('runner:output', { text: chunk.toString(), error: false }));
+
+  child.stderr.on('data', (chunk) =&gt;
+    send('runner:output', { text: chunk.toString(), error: true }));
+
+  child.on('error', (error) =&gt;
+    send('runner:output', { text: `${error.message}\n`, error: true }));
+
+  child.on('close', (code) =&gt; send('runner:state', code === 0 ? 'Done' : 'Failed'));
+
+  return child;
+}
+
+// Graceful shutdown — never leave orphans behind
+app.on('before-quit', () =&gt; {
+  if (activeRun) activeRun.kill();
+});</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li>Main, preload and renderer are separate processes with separate trust levels.</li>
+            <li><code>contextIsolation: true</code> and <code>nodeIntegration: false</code>, always.</li>
+            <li>Expose named functions on the bridge — never raw <code>ipcRenderer</code>.</li>
+            <li>Validate every IPC payload before it touches the filesystem or a shell.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 02 -->
+        <section id="audio">
+          <h2><span class="h2-num">02 — Section</span>Real-Time Audio &amp; State Machines</h2>
+
+          <p>
+            Microphone APIs fire events asynchronously and in no guaranteed order. Users hit stop
+            while speech is being transcribed. Devices vanish mid-session. Without structure, you
+            end up with callbacks writing into a UI that has already moved on.
+          </p>
+
+          <p>
+            The fix used in production voice apps is an <strong>explicit state machine</strong>: a
+            frozen set of states, a table of legal transitions, and a single function that is the
+            only way state can change.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">vad-state.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Object.freeze means a typo throws instead of creating a new state
+export const VAD_STATE = Object.freeze({
+  IDLE: 'idle',
+  INITIALIZING: 'initializing',
+  LISTENING: 'listening',
+  SPEECH_DETECTED: 'speech_detected',
+  PAUSED: 'paused',
+  STOPPING: 'stopping',
+  ERROR: 'error'
+});
+
+// The transition table IS the documentation.
+const VALID_TRANSITIONS = {
+  [VAD_STATE.IDLE]: [VAD_STATE.INITIALIZING],
+  [VAD_STATE.INITIALIZING]: [
+    VAD_STATE.LISTENING, VAD_STATE.STOPPING, VAD_STATE.ERROR, VAD_STATE.IDLE
+  ],
+  [VAD_STATE.LISTENING]: [
+    VAD_STATE.SPEECH_DETECTED, VAD_STATE.PAUSED, VAD_STATE.STOPPING, VAD_STATE.ERROR
+  ],
+  [VAD_STATE.SPEECH_DETECTED]: [
+    VAD_STATE.LISTENING, VAD_STATE.STOPPING, VAD_STATE.ERROR
+  ],
+  [VAD_STATE.PAUSED]: [
+    VAD_STATE.LISTENING, VAD_STATE.STOPPING, VAD_STATE.ERROR
+  ],
+  [VAD_STATE.STOPPING]: [VAD_STATE.IDLE, VAD_STATE.ERROR],
+  [VAD_STATE.ERROR]: [VAD_STATE.IDLE, VAD_STATE.INITIALIZING]
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">transition.js — one door in</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const subscribers = new Set();
+let session = null;
+
+function subscribe(callback) {
+  subscribers.add(callback);
+  // Return the unsubscribe function — the caller cannot forget the pair
+  return () =&gt; subscribers.delete(callback);
+}
+
+function notify(state) {
+  subscribers.forEach((callback) =&gt; {
+    try {
+      callback(state);
+    } catch (error) {
+      // One broken subscriber must not break the audio pipeline
+      console.error('state subscriber threw:', error);
+    }
+  });
+}
+
+function transitionTo(next) {
+  if (!session) return false;
+
+  const current = session.state;
+  const allowed = VALID_TRANSITIONS[current] || [];
+
+  if (!allowed.includes(next)) {
+    console.warn(`[VAD] illegal transition ${current} → ${next}`);
+    return false;                 // rejected, state unchanged
+  }
+
+  session.state = next;
+  notify(next);
+  return true;
+}</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Why this beats boolean flags</div>
+              <p>
+                With <code>isRecording</code>, <code>isStarting</code> and
+                <code>isPaused</code> you eventually get a combination that means nothing — three
+                booleans is eight states, and you'll never define them all. A single state variable
+                with a transition table makes impossible states <em>unrepresentable</em>, and the
+                illegal-transition warning finds your bug the first time it happens instead of the
+                hundredth.
+              </p>
+            </div>
+          </div>
+
+          <h3 id="session-tokens">Session tokens — killing stale callbacks</h3>
+
+          <p>
+            Here is the bug this pattern exists for: the user stops recording, you tear down the
+            audio graph, and then a <code>MediaRecorder</code> event from the
+            <em>previous</em> session fires and writes into your brand-new recording.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">session-token.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">let counter = 0;
+const makeToken = () =&gt; `vad_${Date.now().toString(36)}_${(++counter).toString(36)}`;
+
+async function start() {
+  // A new token makes every callback from the old session a no-op
+  const token = makeToken();
+  session = { token, state: VAD_STATE.IDLE, onData: [], lastSpeechAt: 0 };
+
+  transitionTo(VAD_STATE.INITIALIZING);
+
+  const instance = await createDetector({
+    onSpeechStart: () =&gt; {
+      if (session?.token !== token) return;    // stale — drop it
+      session.lastSpeechAt = Date.now();
+      transitionTo(VAD_STATE.SPEECH_DETECTED);
+    },
+
+    onSpeechEnd: (audio) =&gt; {
+      if (session?.token !== token) return;    // stale — drop it
+
+      // Validate the audio before forwarding it anywhere
+      if (audio.length &lt; MIN_SAMPLES) return;
+      if (rms(audio) &lt; MIN_RMS_THRESHOLD) return;   // silence, not speech
+
+      session.onData.forEach((fn) =&gt; fn(audio));
+      transitionTo(VAD_STATE.LISTENING);
+    }
+  });
+
+  transitionTo(VAD_STATE.LISTENING);
+  return instance;
+}
+
+async function stop(instance) {
+  transitionTo(VAD_STATE.STOPPING);
+
+  // Invalidate first, clean up second — never the other way round
+  session = null;
+  await instance?.destroy();
+
+  transitionTo(VAD_STATE.IDLE);
+}
+
+// Root mean square — a cheap "is there actually sound here?" test
+function rms(samples) {
+  let sum = 0;
+  for (let i = 0; i &lt; samples.length; i++) sum += samples[i] * samples[i];
+  return Math.sqrt(sum / samples.length);
+}
+
+const MIN_SAMPLES = 8000;        // ~0.5s at 16kHz
+const MIN_RMS_THRESHOLD = 0.005; // below this is silence</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Invalidate before you clean up</div>
+              <p>
+                The order in <code>stop()</code> matters. If you tear down the audio graph first,
+                the teardown itself fires events that now pass the token check and run against a
+                half-destroyed session. Set <code>session = null</code> first so every in-flight
+                callback is already stale.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Model async lifecycles as an explicit state machine with a transition table.</li>
+            <li>Frozen state constants turn typos into errors instead of phantom states.</li>
+            <li>Session tokens make callbacks from a previous run inert.</li>
+            <li>Always provide a synchronous way to unsubscribe, and clean up in the right order.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 03 -->
+        <section id="canvas">
+          <h2><span class="h2-num">03 — Section</span>Canvas &amp; the Render Loop</h2>
+
+          <p>
+            Animation is <code>requestAnimationFrame</code>, not <code>setInterval</code>. The timer
+            callback knows nothing about the display; <code>rAF</code> fires once per frame, in sync
+            with the browser, and is throttled automatically when the tab is hidden.
+          </p>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">why not setInterval</span>
+              <span class="code-lang">text</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-plaintext">setInterval(render, 16)   ->  fires while the tab is hidden, on the wrong beat,
+                              and produces a dropped frame whenever it collides
+                              with layout or paint.
+
+requestAnimationFrame      ->  fires once per painted frame, pauses when hidden,
+                              and hands you the frame timestamp for free.</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">loop.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function startAnimation(canvas, update, draw) {
+  const context = canvas.getContext('2d');
+  let previous = performance.now();
+  let rafId = null;
+  let running = true;
+
+  function size() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    // Scale the backing store, then scale the context back down.
+    // Without this, everything is blurry on a retina display.
+    canvas.width = Math.floor(canvas.clientWidth * dpr);
+    canvas.height = Math.floor(canvas.clientHeight * dpr);
+
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function frame(now) {
+    // Seconds since the last frame — this is what makes motion
+    // independent of the display's refresh rate.
+    const delta = Math.min((now - previous) / 1000, 0.05);
+    previous = now;
+
+    update(delta);
+    draw(context, delta);
+
+    if (running) rafId = requestAnimationFrame(frame);
+  }
+
+  size();
+  window.addEventListener('resize', size);
+
+  document.addEventListener('visibilitychange', () =&gt; {
+    if (document.hidden) {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    } else {
+      running = true;
+      previous = performance.now();     // don't jump after a pause
+      rafId = requestAnimationFrame(frame);
+    }
+  });
+
+  rafId = requestAnimationFrame(frame);
+
+  return () =&gt; {
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    window.removeEventListener('resize', size);
+  };
+}</code></pre>
+          </div>
+
+          <h3 id="delta-time">Delta time — the difference between smooth and broken</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">wrong-vs-right.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// WRONG — moves a fixed amount per frame.
+// 144Hz monitors run the simulation 2.4x faster than 60Hz ones.
+function updateBroken() {
+  agent.x += 2;
+}
+
+// RIGHT — velocity is per second, so the result looks identical everywhere
+function updateCorrect(delta) {
+  agent.x += agent.vx * delta;      // vx is pixels per second
+}
+
+// The clamp matters: after the tab has been backgrounded, delta can be
+// dozens of seconds and everything teleports off screen.
+const safeDelta = Math.min((now - previous) / 1000, 0.05);</code></pre>
+          </div>
+
+          <h3>A boids flock, in the essentials</h3>
+
+          <p>
+            Three rules per particle — separation, alignment, cohesion — and a flock appears. It's
+            the classic demonstration that simple local rules produce complex global behaviour.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">boids.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const PERCEPTION = 60;
+const MAX_SPEED = 120;      // pixels per second
+
+function stepFlock(boids, delta) {
+  for (const boid of boids) {
+    let sepX = 0, sepY = 0;      // push away from neighbours
+    let aliX = 0, aliY = 0;      // match neighbours' heading
+    let cohX = 0, cohY = 0;      // drift toward neighbours' centre
+    let neighbours = 0;
+
+    for (const other of boids) {
+      if (other === boid) continue;
+
+      const dx = boid.x - other.x;
+      const dy = boid.y - other.y;
+      const distanceSq = dx * dx + dy * dy;
+
+      if (distanceSq &gt; PERCEPTION * PERCEPTION || distanceSq === 0) continue;
+
+      neighbours++;
+      sepX += dx / distanceSq;     // inverse square: closer pushes harder
+      sepY += dy / distanceSq;
+      aliX += other.vx;
+      aliY += other.vy;
+      cohX += other.x;
+      cohY += other.y;
+    }
+
+    if (neighbours &gt; 0) {
+      aliX /= neighbours;  aliY /= neighbours;
+      cohX = cohX / neighbours - boid.x;
+      cohY = cohY / neighbours - boid.y;
+    }
+
+    boid.vx += sepX * 1.5 + aliX * 1.0 + cohX * 0.01;
+    boid.vy += sepY * 1.5 + aliY * 1.0 + cohY * 0.01;
+
+    // Clamp to a maximum speed, then integrate
+    const speed = Math.hypot(boid.vx, boid.vy) || 1;
+    if (speed &gt; MAX_SPEED) {
+      boid.vx = (boid.vx / speed) * MAX_SPEED;
+      boid.vy = (boid.vy / speed) * MAX_SPEED;
+    }
+
+    boid.x += boid.vx * delta;
+    boid.y += boid.vy * delta;
+  }
+}
+
+// The whole flock drawn in ONE path — one fill call, not 200.
+function drawFlock(context, boids) {
+  context.beginPath();
+  for (const boid of boids) {
+    context.moveTo(boid.x + 3, boid.y);
+    context.arc(boid.x, boid.y, 3, 0, Math.PI * 2);
+  }
+  context.fillStyle = '#ffffff';
+  context.fill();
+}</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The nested loop is O(n²)</div>
+              <p>
+                Every boid checks every other boid. At 200 boids that's 40,000 distance checks per
+                frame — fine. At 5,000 it's 25 million, and your frame budget is 16ms. Real
+                implementations use a spatial grid: bucket boids into cells the size of the
+                perception radius and only compare within adjacent cells, which brings it close to
+                linear.
+              </p>
+            </div>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Allocate outside the loop</div>
+              <p>
+                Creating objects or arrays inside a per-frame function means the garbage collector
+                runs during your animation — which is exactly when a pause is most visible. Reuse
+                scratch arrays and mutate boids in place, as above, rather than building new
+                objects each frame.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li><code>requestAnimationFrame</code> syncs with the display and pauses when hidden.</li>
+            <li>Multiply all motion by delta time, and clamp the delta.</li>
+            <li>Scale the canvas backing store by <code>devicePixelRatio</code> or it looks blurry.</li>
+            <li>Keep per-frame work allocation-free, and batch your draw calls.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 04 -->
+        <section id="daemon">
+          <h2><span class="h2-num">04 — Section</span>Architecting a Node Daemon</h2>
+
+          <p>
+            A daemon is a long-running process that samples the world, decides something, acts, and
+            remembers what worked. The architecture below is the difference between a script and a
+            system that survives a week of uptime.
+          </p>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">the layers</span>
+              <span class="code-lang">text</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-plaintext">  adapters    adb, http clients, filesystem     — talk to the outside world
+     |
+  monitors    cpu, memory, thermal, battery      — turn raw data into samples
+     |
+  history     rolling window of recent samples   — gives you trends, not just now
+     |
+  decision    weighted score + safety gates      — should we act at all?
+     |
+  plugins     the actual actions, each scoring   — do the thing, record the result
+     |
+  learning    EMA + circuit breaker per plugin   — a plugin that fails gets benched
+     |
+  daemon      wires it together and schedules    — the composition root
+</code></pre>
+          </div>
+
+          <h3>The composition root</h3>
+
+          <p>
+            Nothing constructs its own dependencies. The daemon creates everything once, in
+            dependency order, and hands each piece what it needs. That's what makes any single
+            monitor testable in isolation.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">daemon.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class DeviceOptimizerDaemon {
+  constructor(rootDir = path.resolve(__dirname, '..')) {
+    this.rootDir = rootDir;
+    this.bus = new EventBus();
+    this.running = false;
+  }
+
+  async init() {
+    this.config = await loadConfig(this.rootDir);
+    this.adb = new Adb(this.config.adbPath || 'adb');
+
+    // Bounded memory: history cannot grow forever
+    this.history = new RollingHistory(this.config.historyLimit);
+
+    this.logger = new MetricsLogger(this.rootDir, this.config.dataDir);
+    await this.logger.init();
+
+    this.learning = new LearningStore(
+      this.rootDir,
+      this.config.dataDir,
+      this.config.minimumUsefulGainMb,
+      this.config.pluginFailureDisableThreshold
+    );
+    await this.learning.init();
+
+    // Each monitor is a thin adapter with one job
+    this.monitors = {
+      memory: new MemoryMonitor(this.adb),
+      cpu: new CpuMonitor(this.adb),
+      thermal: new ThermalMonitor(this.adb),
+      battery: new BatteryMonitor(this.adb),
+      foreground: new ForegroundMonitor(this.adb)
+    };
+
+    // Injected, not imported — a test can pass fakes
+    this.decisionEngine = new DecisionEngine(this.config, this.history, this.learning);
+    this.optimizationEngine = new OptimizationEngine({
+      monitors: this.monitors,
+      bus: this.bus,
+      learning: this.learning
+    });
+  }
+}</code></pre>
+          </div>
+
+          <h3>An event bus decouples the pieces</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">event-bus.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class EventBus extends EventEmitter {
+  emitSafe(event, payload) {
+    this.emit(event, payload);
+  }
+
+  async emitAsync(event, payload) {
+    // Collect async listeners so the caller can await all of them
+    const listeners = this.listeners(event);
+    await Promise.all(listeners.map((fn) =&gt; fn(payload)));
+  }
+}
+
+// A monitor announces what happened; it does not know who cares.
+bus.emitSafe('pressure:high', { usedPercent: 82, score: 74 });
+
+// The logger, the UI bridge and the optimizer each subscribe independently —
+// add a fourth consumer later and none of the existing code changes.
+bus.on('pressure:high', (data) =&gt; metrics.write(data));
+bus.on('pressure:high', (data) =&gt; uiBridge.push(data));</code></pre>
+          </div>
+
+          <h3 id="learning">A decision engine with safety gates</h3>
+
+          <p>
+            The interesting part isn't the score — it's the gates. Acting on a hot or low-battery
+            device makes things worse, no matter how much memory you'd reclaim.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">decision-engine.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">decide(sample) {
+  const used = sample.memory.summary.usedPercent;
+  const growth = this.history.growth((item) =&gt; item.memory.summary.usedPercent);
+  const cpu = sample.cpu.loadPercent;
+
+  const thermalHigh = sample.thermal.risk === 'HIGH'
+    || sample.battery.temperatureC &gt;= this.config.maximumBatteryTemperatureC;
+
+  const batteryLow = sample.battery.level &gt;= 0
+    &amp;&amp; sample.battery.level &lt; this.config.minimumBatteryPercent;
+
+  const userActive = sample.foreground.active;
+
+  // A weighted score beats a single threshold — growth and free memory
+  // both matter, and they matter by different amounts.
+  const pressureScore =
+      used
+    + Math.max(0, growth * 1.2)                              // trending up is worse
+    + Math.max(0, sample.storage.usedPercent - 90) * 0.4     // near-full disk
+    - (sample.memory.summary.availableMb &gt; 1800 ? 8 : 0);    // plenty free
+
+  // Hard gates: any one of these vetoes the action outright
+  const allowed =
+      cpu &lt;= this.config.maximumCpuForOptimizationPercent
+    &amp;&amp; !thermalHigh
+    &amp;&amp; !batteryLow
+    &amp;&amp; !userActive;
+
+  let recommendation = 'observe';
+  if (pressureScore &gt; 68 &amp;&amp; allowed) recommendation = 'optimize';
+  if (used &lt;= this.config.targetUsedMemoryPercent) recommendation = 'target-met';
+  if (!allowed) recommendation = 'defer-risk';
+
+  return {
+    usedPercent: used,
+    memoryGrowth: growth,
+    pressureScore,
+    allowed,
+    recommendation,
+    reasons: { cpu, thermalHigh, batteryLow, userActive }
+  };
+}</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Return the reasons, not just the verdict</div>
+              <p>
+                <code>reasons: { cpu, thermalHigh, batteryLow, userActive }</code> is the most
+                valuable line in the function. Next month, when someone asks "why didn't it
+                optimise?", the log answers the question directly instead of sending you back into
+                the code.
+              </p>
+            </div>
+          </div>
+
+          <h3>Learning, with a circuit breaker</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">learning-store.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class LearningStore {
+  constructor(rootDir, dataDir, minimumUsefulGainMb, failureThreshold) {
+    this.path = path.join(rootDir, dataDir, 'learning.json');
+    this.minimumUsefulGainMb = minimumUsefulGainMb;
+    this.failureThreshold = failureThreshold;
+    this.state = {};
+  }
+
+  async init() {
+    try {
+      this.state = JSON.parse(await fs.readFile(this.path, 'utf8'));
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;   // a corrupt file is a real problem
+      this.state = {};                            // first run is not
+    }
+  }
+
+  // Circuit breaker: enough consecutive failures and we stop trying
+  isDisabled(plugin) {
+    return (this.state[plugin]?.consecutiveFailures || 0) &gt;= this.failureThreshold;
+  }
+
+  score(plugin) {
+    const item = this.state[plugin];
+    if (!item) return 0;
+    return (item.averageGainMb || 0) - (item.consecutiveFailures || 0) * 20;
+  }
+
+  async record(plugin, gainMb) {
+    const item = this.state[plugin] ||
+      { runs: 0, usefulRuns: 0, consecutiveFailures: 0, averageGainMb: 0 };
+
+    item.runs += 1;
+
+    // Exponentially weighted moving average — no need to store every sample.
+    // The running mean stays correct without an array that grows forever.
+    item.averageGainMb += (gainMb - item.averageGainMb) / item.runs;
+
+    if (gainMb &gt;= this.minimumUsefulGainMb) {
+      item.usefulRuns += 1;
+      item.consecutiveFailures = 0;      // success resets the breaker
+    } else {
+      item.consecutiveFailures += 1;
+    }
+
+    this.state[plugin] = item;
+    await this.persist();
+  }
+
+  async persist() {
+    await fs.mkdir(path.dirname(this.path), { recursive: true });
+    await fs.writeFile(this.path, JSON.stringify(this.state, null, 2), 'utf8');
+  }
+}</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The moving average is doing real work</div>
+              <p>
+                <code>avg += (value - avg) / runs</code> computes the exact running mean in constant
+                space. Storing every sample to average them later means an array that grows for the
+                lifetime of the process — a slow leak in a daemon that runs for months.
+              </p>
+            </div>
+          </div>
+
+          <h3>Delta sampling — you can only measure change</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">cpu-monitor.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class CpuMonitor {
+  constructor(adapter) {
+    this.adapter = adapter;
+    this.previous = null;
+  }
+
+  async sample() {
+    // Independent reads run concurrently, not one after the other
+    const [stat, freq] = await Promise.all([
+      this.adapter.shell(['cat', '/proc/stat']),
+      this.adapter.shell(['sh', '-c', 'cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq'])
+    ]);
+
+    const current = parseCpuLine(stat.stdout);
+
+    // The FIRST sample has nothing to compare against — report 0, not a fake number
+    const loadPercent = this.previous &amp;&amp; current
+      ? busyPercent(this.previous, current)
+      : 0;
+
+    this.previous = current;
+
+    return {
+      loadPercent,
+      frequenciesKhz: freq.ok
+        ? freq.stdout.split(/\s+/).map(Number).filter(Number.isFinite)
+        : []
+    };
+  }
+}
+
+// /proc/stat counters only ever increase, so the busy ratio is the DELTA
+function busyPercent(prev, curr) {
+  let total = 0;
+  let idle = 0;
+
+  for (let i = 0; i &lt; Math.min(prev.length, curr.length); i++) {
+    const delta = curr[i] - prev[i];
+    total += delta;
+    if (i === 3 || i === 4) idle += delta;    // idle + iowait
+  }
+
+  return total &gt; 0 ? ((total - idle) / total) * 100 : 0;
+}</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">index.js — CLI entry point</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function main() {
+  const daemon = new DeviceOptimizerDaemon(path.resolve(__dirname, '..'));
+  await daemon.init();
+
+  // Machine-readable modes make the tool scriptable and CI-friendly
+  const once = process.argv.includes('--once');
+  const optimize = process.argv.includes('--optimize');
+
+  if (once) {
+    const result = await daemon.sampleOnce(optimize);
+    console.log(JSON.stringify({
+      finalUsedPercent: Number(result.usedPercent.toFixed(1)),
+      targetAchieved: result.usedPercent &lt;= daemon.config.targetUsedPercent
+    }));
+    return;
+  }
+
+  await daemon.start();
+}
+
+// Last line of defence: never let a rejection vanish silently
+main().catch((error) =&gt; {
+  console.error(error);
+  process.exitCode = 1;
+});
+
+process.on('SIGINT', async () =&gt; {
+  await daemon.stop();
+  process.exit(0);
+});</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li>Layered design: adapters, monitors, history, decision, plugins, learning.</li>
+            <li>One composition root wires everything — nothing constructs its own dependencies.</li>
+            <li>An event bus lets you add consumers without touching producers.</li>
+            <li>Weighted scores decide <em>how much</em>; hard gates decide <em>whether</em>.</li>
+            <li>Bounded history and running averages keep a long-lived process flat in memory.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 05 -->
+        <section id="security">
+          <h2><span class="h2-num">05 — Section</span>Defensive Security</h2>
+
+          <p>
+            Almost every JavaScript vulnerability comes down to one habit: <strong>trusting data
+            that crossed a boundary.</strong> From HTTP, from a user, from another process, from a
+            file you didn't write.
+          </p>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Boundary</th><th>What arrives</th><th>Never do this</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>HTTP request</td><td>body, query, headers</td><td>Put it straight into a SQL string or a file path</td></tr>
+                <tr><td>IPC / postMessage</td><td>any structured-cloneable value</td><td>Assume the sender sent the shape you expected</td></tr>
+                <tr><td>Shell / child process</td><td>arguments</td><td>Build a command string with <code>shell: true</code></td></tr>
+                <tr><td>Filenames</td><td>strings</td><td><code>path.join(dir, name)</code> without checking <code>name</code></td></tr>
+                <tr><td><code>localStorage</code> / cookies</td><td>user-editable strings</td><td><code>JSON.parse</code> and use without validating</td></tr>
+                <tr><td>DOM from user content</td><td>HTML</td><td><code>innerHTML</code> — use <code>textContent</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">safe-paths.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const path = require('node:path');
+
+const BASE = '/srv/uploads';
+
+function safePath(untrustedName) {
+  // 1. Type check — it might not even be a string
+  if (typeof untrustedName !== 'string') throw new Error('invalid name');
+
+  // 2. basename() strips every directory component.
+  //    "../../etc/passwd" becomes "passwd", and we then verify nothing changed.
+  if (untrustedName !== path.basename(untrustedName)) {
+    throw new Error('path traversal attempt');
+  }
+
+  // 3. Resolve and confirm the result is still inside BASE.
+  //    Belt and braces: catches symlinks and platform quirks basename misses.
+  const resolved = path.resolve(BASE, untrustedName);
+  if (!resolved.startsWith(BASE + path.sep)) {
+    throw new Error('resolved outside the base directory');
+  }
+
+  return resolved;
+}</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Command injection is one boolean away</div>
+              <p>
+                <code>exec(`ls ${userInput}`)</code> runs <em>through a shell</em>, so
+                <code>; rm -rf ~</code> in the input is a command. Use
+                <code>execFile</code>/<code>spawn</code> with an argument array and no
+                <code>shell: true</code> — then the input is passed as a literal argument and never
+                interpreted. If you truly need a shell, pass user data through an environment
+                variable.
+              </p>
+            </div>
+          </div>
+
+          <h3>Scanning for leaked secrets</h3>
+
+          <p>
+            Most credential leaks are committed accidentally — a key pasted into a config file, a
+            token left in a build output, a secret shipped in client-side JavaScript. A
+            pattern-based scanner catches them before they reach a repository.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">signatures.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// A signature table: name, risk, and the pattern that identifies it.
+// Most credential formats are deliberately distinctive, which is what
+// makes them detectable — and also what makes them recognisable to an attacker.
+const SECRET_SIGNATURES = [
+  { name: 'AWS Access Key ID',     risk: 'HIGH',   re: /\b(AKIA[0-9A-Z]{16})\b/g },
+  { name: 'Google API Key',        risk: 'HIGH',   re: /\b(AIzaSy[A-Za-z0-9_-]{35})\b/g },
+  { name: 'OpenAI API Key',        risk: 'HIGH',   re: /\b(sk-[A-Za-z0-9_-]{32,})\b/g },
+  { name: 'Stripe Secret Key',     risk: 'HIGH',   re: /\b(sk_(?:live|test)_[0-9a-zA-Z]{24,99})\b/g },
+  { name: 'Stripe Publishable Key',risk: 'LOW',    re: /\b(pk_(?:live|test)_[0-9a-zA-Z]{24,99})\b/g },
+  { name: 'GitHub Token',          risk: 'HIGH',   re: /\b(gh[opurs]_[A-Za-z0-9_]{36,255})\b/g },
+  { name: 'GitLab Token',          risk: 'HIGH',   re: /\b(glpat-[A-Za-z0-9_-]{20,40})\b/g },
+  { name: 'Slack Bot Token',       risk: 'HIGH',   re: /\b(xoxb-[A-Za-z0-9-]{10,80})\b/g },
+  { name: 'JWT',                   risk: 'MEDIUM', re: /\b(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)\b/g },
+  { name: 'Private Key Block',     risk: 'HIGH',   re: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g }
+];</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">scan.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Known library internals that look like secrets but aren't.
+// Without this, every React bundle reports "__SECRET_INTERNALS" as a hit.
+const WHITELIST = ['__SECRET_INTERNALS', 'swiper-', 'fb_mobile_', 'accessible-megamenu'];
+
+function scanText(text, sourceLabel) {
+  const findings = [];
+  const seen = new Set();      // dedupe: the same key in ten bundles is one finding
+
+  // Every regex is global and reused, so reset lastIndex before each scan
+  for (const signature of SECRET_SIGNATURES) {
+    signature.re.lastIndex = 0;
+
+    let match;
+    while ((match = signature.re.exec(text)) !== null) {
+      const value = match[1] ?? match[0];
+
+      if (WHITELIST.some((entry) =&gt; value.includes(entry))) continue;
+
+      const key = `${signature.name}:${value}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      findings.push({
+        name: signature.name,
+        risk: signature.risk,
+        source: sourceLabel,
+        // ALWAYS redact. A scanner that logs the secret has just leaked it
+        // somewhere new — into a report, a console, a CI artefact.
+        preview: value.slice(0, 4) + '…' + value.slice(-4),
+        index: match.index
+      });
+    }
+  }
+
+  return findings;
+}
+
+// Report by severity, never by value
+const report = scanText(bundleSource, 'dist/app.js');
+const highRisk = report.filter((finding) =&gt; finding.risk === 'HIGH');
+
+console.log(`${highRisk.length} high-risk findings in ${report.length} total`);
+highRisk.forEach((f) =&gt; console.log(`  ${f.name} at ${f.source} ${f.preview}`));</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">The five habits that prevent most of this</div>
+              <p>
+                <strong>1.</strong> Validate at the boundary, not deep inside.
+                <strong>2.</strong> Allow-list what's permitted instead of blocking what isn't.
+                <strong>3.</strong> Never build a shell command from a string.
+                <strong>4.</strong> Redact secrets in logs and error messages — including stack
+                traces and request dumps. <strong>5.</strong> Assume client-side code is public,
+                because it is; a "hidden" API key in a bundle is a published API key.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Every boundary is an attack surface: HTTP, IPC, files, storage, user content.</li>
+            <li><code>basename</code> plus a <code>resolve</code> containment check stops path traversal.</li>
+            <li>Use <code>spawn</code>/<code>execFile</code> with argument arrays — never a shell string.</li>
+            <li>Scan for secret signatures, whitelist library noise, and always redact the value.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 06 -->
+        <section id="react">
+          <h2><span class="h2-num">06 — Section</span>React Patterns That Scale</h2>
+
+          <p>
+            React punishes two things: unhandled render errors and unnecessary re-renders. These are
+            the patterns that address both.
+          </p>
+
+          <h3>Error boundaries — a crash should not blank the page</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">ErrorBoundary.tsx</span>
+              <span class="code-lang">typescript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-typescript">import { Component, type ReactNode } from 'react';
+
+interface State {
+  error: Error | null;
+  stack: string;
+}
+
+// Error boundaries MUST be class components — there is no hook equivalent
+export class ErrorBoundary extends Component&lt;{ children: ReactNode }, State&gt; {
+  state: State = { error: null, stack: '' };
+
+  // Called during render, so it must be pure — just return the new state
+  static getDerivedStateFromError(error: Error): Partial&lt;State&gt; {
+    return { error };
+  }
+
+  // Called after the commit — side effects belong here
+  componentDidCatch(error: Error, info: { componentStack?: string }) {
+    console.error('render crash:', error, info.componentStack);
+    reportToTelemetry({ message: error.message, stack: info.componentStack });
+    this.setState({ stack: info.componentStack ?? '' });
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+
+    return (
+      &lt;div role="alert"&gt;
+        &lt;h2&gt;Something went wrong&lt;/h2&gt;
+        &lt;p&gt;Your data is safe. Try again.&lt;/p&gt;
+        &lt;pre&gt;{String(this.state.error)}&lt;/pre&gt;
+        &lt;button onClick={() =&gt; this.setState({ error: null, stack: '' })}&gt;
+          Retry
+        &lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+}</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">What boundaries do and don't catch</div>
+              <p>
+                They catch errors during <em>render</em>, in lifecycle methods, and in constructors
+                below them. They do <strong>not</strong> catch errors in event handlers, in
+                <code>setTimeout</code> callbacks, in async code, or in the boundary itself. A
+                rejected promise in a <code>useEffect</code> sails straight past — handle those
+                where they happen.
+              </p>
+            </div>
+          </div>
+
+          <h3>A hook for async data</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">useAsync.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import { useState, useEffect } from 'react';
+
+function useAsync(load, deps = []) {
+  const [state, setState] = useState({ status: 'loading', data: null, error: null });
+
+  useEffect(() =&gt; {
+    // The same stale-callback problem from audio, solved the same way.
+    // Without this flag, a fast re-render can let a slow request win.
+    let cancelled = false;
+
+    setState({ status: 'loading', data: null, error: null });
+
+    load()
+      .then((data) =&gt; {
+        if (!cancelled) setState({ status: 'success', data, error: null });
+      })
+      .catch((error) =&gt; {
+        if (!cancelled) setState({ status: 'error', data: null, error });
+      });
+
+    // The cleanup sets the flag — React calls it on unmount and on dep change
+    return () =&gt; {
+      cancelled = true;
+    };
+  }, deps);
+
+  return state;
+}
+
+// Usage
+function UserCard({ id }) {
+  const { status, data, error } = useAsync(() =&gt; fetchUser(id), [id]);
+
+  if (status === 'loading') return &lt;p&gt;Loading…&lt;/p&gt;;
+  if (status === 'error') return &lt;p role="alert"&gt;{error.message}&lt;/p&gt;;
+  return &lt;h2&gt;{data.name}&lt;/h2&gt;;
+}</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The <code>deps</code> array is not optional</div>
+              <p>
+                Passing <code>[]</code> when you meant <code>[id]</code> gives you an effect that
+                runs once and then shows stale data forever. As a rule: every value from the
+                component body that the effect reads must be in the dependency array. The ESLint
+                <code>exhaustive-deps</code> rule exists because this is the most common React bug
+                in existence.
+              </p>
+            </div>
+          </div>
+
+          <h3>Animation that doesn't re-render</h3>
+
+          <p>
+            Driving an animation through React state means a full reconcile on every frame. Use a
+            ref and mutate the DOM directly — React renders the container once, and the animation
+            never touches the virtual DOM.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">ParticleField.jsx</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import { useRef, useEffect } from 'react';
+
+export function ParticleField({ count = 60 }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() =&gt; {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const dots = Array.from({ length: count }, () =&gt; ({
+      x: Math.random() * canvas.clientWidth,
+      y: Math.random() * canvas.clientHeight,
+      vx: (Math.random() - 0.5) * 20,
+      vy: (Math.random() - 0.5) * 20
+    }));
+
+    let rafId;
+
+    function frame(now) {
+      const delta = Math.min((now - previous) / 1000, 0.05);
+      previous = now;
+
+      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+      for (const dot of dots) {
+        dot.x += dot.vx * delta;
+        dot.y += dot.vy * delta;
+      }
+      ctx.fill();
+      rafId = requestAnimationFrame(frame);
+    }
+
+    let previous = performance.now();
+    rafId = requestAnimationFrame(frame);
+
+    // Cleanup: cancel the frame AND stop any pending work
+    return () =&gt; cancelAnimationFrame(rafId);
+  }, [count]);          // re-runs only if count changes
+
+  // One render. Zero re-renders per frame.
+  return &lt;canvas ref={canvasRef} className="particle-field" /&gt;;
+}</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">App.jsx — splitting the bundle</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import { lazy, Suspense } from 'react';
+
+// Each import() becomes a separate chunk, fetched on first render
+const LiveCallScreen = lazy(() =&gt; import('./LiveCallScreen.jsx'));
+const SettingsPanel = lazy(() =&gt; import('./SettingsPanel.jsx'));
+
+export default function App() {
+  const [route, setRoute] = useState('chat');
+
+  return (
+    &lt;ErrorBoundary&gt;
+      &lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
+        {route === 'call' ? &lt;LiveCallScreen /&gt; : &lt;ChatScreen /&gt;}
+      &lt;/Suspense&gt;
+    &lt;/ErrorBoundary&gt;
+  );
+}</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Every <code>useEffect</code> should answer: what do I undo?</div>
+              <p>
+                Subscribe → unsubscribe. Start a timer → clear it. Attach a listener → remove it.
+                Open a connection → close it. If you can't name the cleanup, the effect is probably
+                leaking. In React 18 StrictMode every effect runs twice in development specifically
+                to surface the ones that aren't idempotent.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Error boundaries are class components and catch render errors only.</li>
+            <li>Hooks that fetch need a cancellation flag and a correct dependency array.</li>
+            <li>Drive animation with refs and <code>rAF</code>, never with state.</li>
+            <li><code>lazy</code> + <code>Suspense</code> turns routes into on-demand chunks.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 07 -->
+        <section id="testing-real">
+          <h2><span class="h2-num">07 — Section</span>Testing Real Systems</h2>
+
+          <p>
+            Testing a pure function is easy. The value is in testing the parts that actually break:
+            state machines, normalisation of shape-shifting API responses, and anything involving
+            timers.
+          </p>
+
+          <h3>Testing a state machine</h3>
+
+          <p>
+            A transition table is a specification — so test it like one. The most valuable tests
+            assert that <em>illegal</em> transitions are refused.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">state-machine.test.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createRecorder, VAD_STATE } from './recorder.js';
+
+test('walks the happy path', () =&gt; {
+  const recorder = createRecorder();
+
+  assert.equal(recorder.state, VAD_STATE.IDLE);
+  recorder.transitionTo(VAD_STATE.INITIALIZING);
+  recorder.transitionTo(VAD_STATE.LISTENING);
+  recorder.transitionTo(VAD_STATE.SPEECH_DETECTED);
+
+  assert.equal(recorder.state, VAD_STATE.SPEECH_DETECTED);
+});
+
+test('refuses an illegal transition and keeps the current state', () =&gt; {
+  const recorder = createRecorder();
+  recorder.transitionTo(VAD_STATE.INITIALIZING);
+  recorder.transitionTo(VAD_STATE.LISTENING);
+
+  // idle is not reachable directly from listening
+  const accepted = recorder.transitionTo(VAD_STATE.IDLE);
+
+  assert.equal(accepted, false);
+  assert.equal(recorder.state, VAD_STATE.LISTENING, 'state must not change');
+});
+
+test('notifies subscribers and stops after unsubscribe', () =&gt; {
+  const recorder = createRecorder();
+  const seen = [];
+
+  const unsubscribe = recorder.subscribe((state) =&gt; seen.push(state));
+
+  recorder.transitionTo(VAD_STATE.INITIALIZING);
+  unsubscribe();
+  recorder.transitionTo(VAD_STATE.LISTENING);
+
+  assert.deepEqual(seen, [VAD_STATE.INITIALIZING]);
+});
+
+test('a throwing subscriber does not break the others', () =&gt; {
+  const recorder = createRecorder();
+  const seen = [];
+
+  recorder.subscribe(() =&gt; { throw new Error('bad subscriber'); });
+  recorder.subscribe((state) =&gt; seen.push(state));
+
+  recorder.transitionTo(VAD_STATE.INITIALIZING);
+
+  assert.equal(seen.length, 1, 'the healthy subscriber still ran');
+});</code></pre>
+          </div>
+
+          <h3>Testing messy API responses</h3>
+
+          <p>
+            Backends change shape. A normaliser is the boundary where you absorb that — and it's
+            exactly where table-driven tests earn their keep.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">normalise.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// The server sometimes sends a boolean, sometimes a count, sometimes nothing.
+// Normalise ONCE, at the edge — the rest of the app never worries about it.
+export function activeRequests(health) {
+  const active = health?.scheduler?.active;
+
+  if (typeof active === 'boolean') return active ? 1 : 0;
+  if (typeof active === 'number' &amp;&amp; Number.isFinite(active)) return active;
+  return 0;
+}
+
+export function supportsCacheSlots(health) {
+  // Only advertise the capability when the server actually declares it
+  return typeof health?.kv_slots === 'number' &amp;&amp; health.kv_slots &gt; 0;
+}</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">normalise.test.ts</span>
+              <span class="code-lang">typescript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-typescript">import { describe, expect, it } from 'vitest';
+import { activeRequests, supportsCacheSlots } from './runtime';
+
+const healthWith = (active: boolean | number) =&gt; ({
+  status: 'ok',
+  scheduler: { active, queued: 0, max_queue: 0 }
+});
+
+describe('normalising capability flags', () =&gt; {
+  // One test body, four cases — the failure message names the case
+  it.each([
+    [true, 1],
+    [false, 0],
+    [3, 3],
+    [0, 0]
+  ] as const)('maps active=%s to %d', (active, expected) =&gt; {
+    expect(activeRequests(healthWith(active))).toBe(expected);
+  });
+
+  it('treats a missing scheduler as idle', () =&gt; {
+    expect(activeRequests({ status: 'ok' })).toBe(0);
+    expect(activeRequests(null)).toBe(0);          // null must not throw
+    expect(activeRequests(undefined)).toBe(0);
+  });
+
+  it('only enables cache slots when the server advertises them', () =&gt; {
+    expect(supportsCacheSlots({ status: 'ok', kv_slots: 4 })).toBe(true);
+    expect(supportsCacheSlots({ status: 'ok' })).toBe(false);
+    expect(supportsCacheSlots(null)).toBe(false);
+  });
+});</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Test the null and undefined paths explicitly</div>
+              <p>
+                The three assertions for <code>null</code>, <code>undefined</code> and a missing
+                object are the ones that will actually fail in production. "It's always defined" is
+                the assumption every outage is built on.
+              </p>
+            </div>
+          </div>
+
+          <h3>Testing a parser against real-world garbage</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">parsers.test.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import test from 'node:test';
+import assert from 'node:assert/strict';
+import { parseCpuLine, busyPercent } from './parsers.js';
+
+const cases = [
+  ['cpu  100 20 30 400 50 0 0 0', [100, 20, 30, 400, 50, 0, 0, 0], 'typical output'],
+  ['cpu  0 0 0 0 0 0 0 0',        [0, 0, 0, 0, 0, 0, 0, 0],       'all zeros'],
+  ['',                             null,                          'empty input'],
+  ['garbage without a cpu line',   null,                          'unexpected format'],
+  ['cpu  1 2 3 4',                 [1, 2, 3, 4],                  'fewer counters than usual']
+];
+
+for (const [input, expected, why] of cases) {
+  test(`parseCpuLine handles ${why}`, () =&gt; {
+    assert.deepEqual(parseCpuLine(input), expected);
+  });
+}
+
+test('busyPercent returns 0 rather than NaN for the first sample', () =&gt; {
+  // No previous counters means no delta is computable — never divide by zero
+  assert.equal(busyPercent([0, 0, 0, 0, 0], [0, 0, 0, 0, 0]), 0);
+});</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The assertion that matters most</div>
+              <p>
+                <code>busyPercent</code> returning <code>0</code> instead of <code>NaN</code> for a
+                zero-delta sample is the kind of test that only exists because someone shipped a
+                <code>NaN%</code> to a dashboard. Every bug you fix deserves a test that would have
+                caught it.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Test state machines against their transition table, including the illegal moves.</li>
+            <li>Normalise at the boundary, table-test the normaliser.</li>
+            <li>Assert the <code>null</code>/<code>undefined</code>/empty paths by name.</li>
+            <li>Every production bug becomes a regression test.</li>
+          </ul>
+        </section>
+
+        <!-- =================================================== PLAYGROUND -->
+        <section id="playground">
+          <h2><span class="h2-num">Playground</span>Build a state machine</h2>
+
+          <p>
+            The pattern from section 02, reduced to its essentials. Run it, then try to make an
+            illegal transition and watch it get refused.
+          </p>
+
+          <div class="playground" data-playground data-entry="recorder.js">
+            <div class="pg-bar">
+              <span class="pg-badge"><i></i> state machine sandbox</span>
+              <div class="pg-tabs">
+                <button class="pg-tab" type="button" data-file="recorder.js">recorder.js</button>
+              </div>
+              <div class="pg-actions">
+                <button class="pg-btn pg-clear" type="button">Clear</button>
+                <button class="pg-btn pg-reset" type="button">Reset</button>
+                <button class="pg-btn pg-btn-run pg-run" type="button">Run &#9654;</button>
+              </div>
+            </div>
+
+            <div class="pg-editors">
+              <div class="pg-editor is-active" data-name="recorder.js">
+                <textarea rows="26">const STATE = Object.freeze({
+  IDLE: 'idle',
+  INITIALIZING: 'initializing',
+  LISTENING: 'listening',
+  SPEECH_DETECTED: 'speech_detected',
+  STOPPING: 'stopping',
+  ERROR: 'error'
+});
+
+const TRANSITIONS = {
+  [STATE.IDLE]: [STATE.INITIALIZING],
+  [STATE.INITIALIZING]: [STATE.LISTENING, STATE.STOPPING, STATE.ERROR],
+  [STATE.LISTENING]: [STATE.SPEECH_DETECTED, STATE.STOPPING, STATE.ERROR],
+  [STATE.SPEECH_DETECTED]: [STATE.LISTENING, STATE.STOPPING, STATE.ERROR],
+  [STATE.STOPPING]: [STATE.IDLE, STATE.ERROR],
+  [STATE.ERROR]: [STATE.IDLE, STATE.INITIALIZING]
+};
+
+function createRecorder() {
+  const subscribers = new Set();
+  let state = STATE.IDLE;
+
+  return {
+    get state() { return state; },
+
+    subscribe(fn) {
+      subscribers.add(fn);
+      return () => subscribers.delete(fn);
+    },
+
+    transitionTo(next) {
+      const allowed = TRANSITIONS[state] || [];
+      if (!allowed.includes(next)) {
+        console.log(`REFUSED  ${state} -> ${next}`);
+        return false;
+      }
+      state = next;
+      subscribers.forEach((fn) => {
+        try { fn(next); } catch (e) { console.log('subscriber threw, others continue'); }
+      });
+      return true;
+    }
+  };
+}
+
+const recorder = createRecorder();
+recorder.subscribe((s) => console.log('  state ->', s));
+
+console.log('legal path:');
+recorder.transitionTo(STATE.INITIALIZING);
+recorder.transitionTo(STATE.LISTENING);
+recorder.transitionTo(STATE.SPEECH_DETECTED);
+
+console.log('illegal attempts:');
+recorder.transitionTo(STATE.IDLE);        // not reachable from speech_detected
+recorder.transitionTo(STATE.LISTENING);   // back to listening is legal
+
+console.log('final state:', recorder.state);</textarea>
+              </div>
+            </div>
+
+            <div class="pg-out-wrap">
+              <div class="pg-out-label">console output</div>
+              <div class="pg-out"></div>
+            </div>
+          </div>
+
+          <div class="pg-meta">
+            <span>Try deleting <code>STATE.LISTENING</code> from the <code>[STATE.SPEECH_DETECTED]</code> row and run again.</span>
+            <span><code>Ctrl</code>+<code>Enter</code> runs.</span>
+          </div>
+        </section>
+
+        <!-- =================================================== CHECKPOINT -->
+        <section id="checkpoint">
+          <h2><span class="h2-num">Checkpoint</span>Test yourself</h2>
+
+          <p>Three questions. Click an answer to check it — the explanation appears underneath.</p>
+
+          <div class="quiz">
+            <div class="quiz-head">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Advanced patterns checkpoint
+            </div>
+            <div class="quiz-body">
+
+              <div class="quiz-q">
+                <p class="q-text">1. Why does the audio recorder attach a session token to every callback?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> To compress the audio before sending it.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> So callbacks from a previous run can be detected and ignored.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> To authenticate the user with the speech service.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> To order callbacks that arrive out of sequence.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. A microphone fires events asynchronously, so a callback from the run you just stopped can arrive after the next one started. The token makes those stale callbacks inert.</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">2. In a render loop, why multiply movement by <code>delta</code>?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> To smooth out the animation visually.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> So movement is time-based, and identical on a 60Hz and a 144Hz display.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> Because <code>requestAnimationFrame</code> requires it.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> To reduce the number of frames drawn.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. A fixed amount per frame makes the simulation run faster on a faster display. Expressing velocity per second and scaling by the frame time makes the result refresh-rate independent.</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">3. A renderer asks your Electron main process to save a file named <code>../../.ssh/authorized_keys</code>. What stops it?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> <code>contextIsolation: true</code> blocks the IPC message.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">B</span> Node's <code>path.join</code> rejects separators automatically.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">C</span> Validating the name in the main process — <code>basename(name) === name</code> plus a resolve containment check.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> Nothing — the main process must trust the renderer.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>C</strong>. <code>contextIsolation</code> protects the bridge, not the payload — and <code>path.join</code> will happily follow <code>..</code>. Every value arriving over IPC is untrusted input and must be validated in the main process, where the filesystem access actually happens.</p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </article>
+
+      <div class="lesson-outro">
+        <h2>What you can do now</h2>
+        <p style="color:var(--text-soft);font-size:15.5px;">
+          You can structure an Electron app so the renderer can't reach the filesystem, model an
+          async lifecycle as a state machine that rejects impossible transitions, drive a canvas
+          animation that behaves identically on every display, wire a long-running daemon so each
+          piece is testable and self-limiting, validate input at every boundary, and write tests
+          that would actually catch the bugs you've already met.
+        </p>
+
+        <div class="pager">
+          <a href="04-modern-tooling-and-esm.html">
+            <span class="p-dir">&larr; Previous</span>
+            <span class="p-title">Category 4 — Modern Tooling &amp; ES Modules</span>
+          </a>
+          <a class="next" href="../index.html#tracks">
+            <span class="p-dir">Course complete &rarr;</span>
+            <span class="p-title">Back to the roadmap</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</main>
+
+<button class="to-top" type="button" aria-label="Back to top">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>&copy; <span data-year>2026</span> Master the JavaScript &middot; Category 05 of the course.</span>
+    <nav class="footer-links" aria-label="Course index">
+      <a href="../index.html">Home</a>
+      <a href="01-module-fundamentals.html">01 Modules</a>
+      <a href="02-async-and-the-event-loop.html">02 Async</a>
+      <a href="03-objects-prototypes-classes.html">03 Objects</a>
+      <a href="04-modern-tooling-and-esm.html">04 Tooling</a>
+      <a href="05-advanced-patterns.html">05 Advanced</a>
+      <a href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  if (window.hljs) { hljs.highlightAll(); }
+</script>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/lesson.js"></script>
+<script src="../assets/js/playground.js"></script>
+</body>
+</html>

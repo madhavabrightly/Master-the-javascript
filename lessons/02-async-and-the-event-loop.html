@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category 2 — Async JavaScript &amp; the Event Loop | Master the JavaScript</title>
+<meta name="description" content="Callbacks, promises, async/await, microtasks, macrotasks and the event loop — with every example runnable in your browser.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600;650;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/lesson.css">
+<link rel="stylesheet" href="../assets/css/playground.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="progress-rail"><div class="progress-bar"></div></div>
+
+<div class="bg-field" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <span>Master the JavaScript <span class="brand-sub">/ category 02</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#tracks">Tracks</a>
+      <a href="#playground">Playground</a>
+      <a class="is-active" href="02-async-and-the-event-loop.html">Category 2</a>
+      <a class="nav-cta" href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">
+        GitHub
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="../index.html">Home</a>
+  <a href="#why-async">01 &middot; Why async exists</a>
+  <a href="#callbacks">02 &middot; Callbacks</a>
+  <a href="#promises">03 &middot; Promises</a>
+  <a href="#async-await">04 &middot; async / await</a>
+  <a href="#event-loop">05 &middot; The event loop</a>
+  <a href="#timers">06 &middot; Timers &amp; scheduling</a>
+  <a href="#concurrency">07 &middot; Concurrency control</a>
+  <a href="#async-errors">08 &middot; Errors in async code</a>
+  <a href="#streams">09 &middot; Streams &amp; async iteration</a>
+  <a href="#realtime">10 &middot; Real-time communication</a>
+  <a href="#playground">Playground</a>
+  <a href="#checkpoint">Checkpoint quiz</a>
+</div>
+
+<main id="main">
+<div class="layer">
+  <div class="lesson-shell">
+
+    <aside class="lesson-aside">
+      <div class="aside-label">On this page</div>
+      <ul class="toc">
+        <li><a href="#why-async">Why async exists</a></li>
+        <li><a href="#callbacks">Callbacks</a></li>
+        <li><a href="#promises">Promises</a></li>
+        <li class="toc-sub"><a href="#promise-states">States &amp; chaining</a></li>
+        <li class="toc-sub"><a href="#combinators">Combinators</a></li>
+        <li><a href="#async-await">async / await</a></li>
+        <li class="toc-sub"><a href="#sequential-vs-parallel">Sequential vs parallel</a></li>
+        <li><a href="#event-loop">The event loop</a></li>
+        <li class="toc-sub"><a href="#microtasks">Microtasks vs macrotasks</a></li>
+        <li><a href="#timers">Timers &amp; scheduling</a></li>
+        <li class="toc-sub"><a href="#debounce">Debounce &amp; throttle</a></li>
+        <li><a href="#concurrency">Concurrency control</a></li>
+        <li><a href="#async-errors">Errors in async code</a></li>
+        <li><a href="#streams">Streams &amp; async iteration</a></li>
+        <li class="toc-sub"><a href="#for-await">for await…of</a></li>
+        <li><a href="#realtime">Real-time communication</a></li>
+        <li><a href="#playground">Playground</a></li>
+        <li><a href="#checkpoint">Checkpoint</a></li>
+      </ul>
+
+      <div class="aside-progress">
+        <div class="pct">0% read</div>
+        <div class="bar"><i></i></div>
+      </div>
+    </aside>
+
+    <div>
+
+      <div class="lesson-head">
+        <div class="crumbs">
+          <a href="../index.html">Home</a>
+          <span>/</span>
+          <span>Category 02</span>
+          <span>/</span>
+          <span>Async JavaScript &amp; the Event Loop</span>
+        </div>
+        <h1>Async JavaScript &amp; the Event Loop</h1>
+        <p class="sub">
+          JavaScript runs one thing at a time — yet it never freezes while waiting for the network.
+          This category explains how that works, why <code>setTimeout(fn, 0)</code> runs after your
+          promises, and how to stop awaiting things in a loop.
+        </p>
+        <div class="lesson-facts">
+          <span><i></i> 10 sections</span>
+          <span><i></i> 55+ runnable examples</span>
+          <span><i></i> ~85 min read</span>
+          <span><i></i> Level: intermediate &rarr; advanced</span>
+        </div>
+      </div>
+
+      <article class="prose">
+
+        <!-- ========================================================== 01 -->
+        <section id="why-async">
+          <h2><span class="h2-num">01 — Section</span>Why Async Exists</h2>
+
+          <p>
+            <strong>JavaScript runs on a single thread: one call stack, one thing at a time.</strong>
+            It cannot do two things simultaneously. Every line you write runs to completion before
+            the next one starts.
+          </p>
+
+          <p>
+            That sounds like a limitation — and it is, until you realise what it buys you. Because
+            nothing runs concurrently, you never have two pieces of code touching the same variable
+            at the same instant. No locks, no race conditions, no threads fighting over memory.
+          </p>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">&#9733;</div>
+            <div class="c-body">
+              <div class="c-title">Brand new to this? Start here</div>
+              <p>
+                Picture a single barista with one espresso machine. They can only pull one shot at a
+                time. But while the machine is extracting, they don't stand there staring at it —
+                they take the next order, grind beans, hand over a finished cup.
+              </p>
+              <p>
+                That's async JavaScript. The barista is the call stack. The machine is the operating
+                system doing I/O. <strong>Waiting is handed off; working never stops.</strong>
+              </p>
+            </div>
+          </div>
+
+          <h3>Blocking code stops everything</h3>
+
+          <p>
+            If you <em>wait</em> inside JavaScript, nothing else can happen — because there's only
+            one thread to wait with.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">blocking.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const start = Date.now();
+
+while (Date.now() - start &lt; 3000) {
+  // busy-wait: the call stack never empties, so nothing else can run
+}
+
+console.log('Three seconds gone, and the whole program was frozen');</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Why this matters in a server</div>
+              <p>
+                A loop like that doesn't just delay <em>your</em> request — it blocks every other
+                request too. One slow synchronous operation can take down an entire Node process.
+                This is the single most common production incident caused by JavaScript.
+              </p>
+            </div>
+          </div>
+
+          <h3>Non-blocking code hands the waiting off</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">non-blocking.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.log('start');
+
+setTimeout(() => {
+  console.log('timer done');
+}, 3000);
+
+console.log('this prints immediately');</code></pre>
+          </div>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">terminal</span>
+              <span class="code-lang">output</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-plaintext">start
+this prints immediately
+timer done</code></pre>
+          </div>
+
+          <p>
+            <code>setTimeout</code> doesn't pause anything. It registers the callback with the
+            runtime and returns immediately — so the last line runs first, and the timer's callback
+            runs three seconds later when the stack is free.
+          </p>
+
+          <ul class="keypoints">
+            <li>JavaScript has one call stack — one thing runs at a time.</li>
+            <li>Blocking the stack freezes the entire program, not just the current function.</li>
+            <li>Async APIs hand the waiting to the runtime and hand you back a callback or a promise.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 02 -->
+        <section id="callbacks">
+          <h2><span class="h2-num">02 — Section</span>Callbacks</h2>
+
+          <p>
+            <strong>A callback is simply a function you hand to something else, to be called
+            later.</strong> It's the original async pattern in JavaScript, and it's still underneath
+            every promise and every <code>await</code>.
+          </p>
+
+          <p>
+            Node standardised a convention: the callback takes <strong>the error first, then the
+            result</strong>. That single rule is why every Node API looks the way it does.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">read-config.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const fs = require('fs');
+
+fs.readFile('./config.json', 'utf8', (error, content) => {
+  if (error) {
+    console.error('Could not read config:', error.message);
+    return;
+  }
+  console.log('Config loaded:', content);
+});</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Why error-first?</div>
+              <p>
+                A callback can only "return" once, and it can't throw to you — by the time it runs,
+                your stack frame is long gone. So the error has to travel as an argument. Checking
+                <code>if (error)</code> first, and <code>return</code>-ing early, keeps the happy
+                path un-indented.
+              </p>
+            </div>
+          </div>
+
+          <h3>The problem: callback hell</h3>
+
+          <p>
+            Every async step needs its result before the next one can start. Nest them, and the
+            code marches off the right edge of the screen:
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">orders.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">getUser(userId, (error, user) =&gt; {
+  if (error) return handle(error);
+
+  getOrders(user.id, (error, orders) =&gt; {
+    if (error) return handle(error);
+
+    getInvoice(orders[0].id, (error, invoice) =&gt; {
+      if (error) return handle(error);
+
+      sendEmail(user.email, invoice, (error) =&gt; {
+        if (error) return handle(error);
+        console.log('Invoice emailed');
+      });
+    });
+  });
+});</code></pre>
+          </div>
+
+          <p>
+            Two things went wrong here. The shape is hard to read — but the deeper problem is
+            <strong>inversion of control</strong>: you handed your continuation to four different
+            functions, and you have to trust each one to call it exactly once, with the right
+            arguments, and never swallow the error.
+          </p>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The trust problem</div>
+              <p>
+                Promises didn't appear because callbacks are ugly. They appeared because a callback
+                gives away control: you cannot know whether it was called twice, never called, or
+                called synchronously before the rest of your function ran.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>A callback is a function called later, by someone else.</li>
+            <li>Node's convention puts the error first: <code>(error, result)</code>.</li>
+            <li>Nesting dependent callbacks produces callback hell and hands away control flow.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 03 -->
+        <section id="promises">
+          <h2><span class="h2-num">03 — Section</span>Promises</h2>
+
+          <p>
+            <strong>A promise is an object that represents a value you don't have yet.</strong> It
+            is a placeholder you can attach behaviour to, pass around, and return — which is exactly
+            what a callback can't do.
+          </p>
+
+          <h3 id="promise-states">States and chaining</h3>
+
+          <p>A promise is always in one of three states:</p>
+
+          <ul>
+            <li><strong>pending</strong> — still waiting</li>
+            <li><strong>fulfilled</strong> — finished successfully, with a value</li>
+            <li><strong>rejected</strong> — failed, with a reason</li>
+          </ul>
+
+          <p>
+            A promise <strong>settles exactly once</strong>. Once fulfilled or rejected, it can
+            never change again. That single guarantee is what makes them trustworthy: you know your
+            continuation runs at most once.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">delay.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function delay(ms) {
+  return new Promise((resolve) =&gt; {
+    setTimeout(() =&gt; resolve(`waited ${ms}ms`), ms);
+  });
+}
+
+delay(1000).then((message) =&gt; {
+  console.log(message);   // "waited 1000ms"
+});</code></pre>
+          </div>
+
+          <p>
+            <code>.then()</code> returns a <em>new</em> promise, which is what makes chaining work.
+            Whatever you return from a <code>then</code> becomes the value the next
+            <code>then</code> receives — and if you return a promise, it's flattened automatically
+            rather than nested.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">load-config.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">readFile('./config.json')
+  .then((content) =&gt; JSON.parse(content))
+  .then((config) =&gt; fetch(config.apiUrl))
+  .then((response) =&gt; response.json())
+  .catch((error) =&gt; console.error('Something failed:', error.message))
+  .finally(() =&gt; console.log('Finished, success or failure'));</code></pre>
+          </div>
+
+          <p>
+            Compare the shape with the callback version: no nesting, one error handler at the
+            bottom catching anything above it, and the whole thing reads top to bottom.
+          </p>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The one mistake everyone makes</div>
+              <p>
+                Forgetting to <code>return</code>. If you write <code>.then(v =&gt; { doThing(v); })</code>
+                with braces but no <code>return</code>, the next <code>.then</code> gets
+                <code>undefined</code> and your chain silently produces nothing. Either drop the
+                braces or return explicitly.
+              </p>
+            </div>
+          </div>
+
+          <h3 id="combinators">Combinators — running things together</h3>
+
+          <p>
+            These four turn a set of promises into a single promise. Choosing the right one is the
+            difference between "wait for everything" and "wait for the first one that works".
+          </p>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Method</th><th>Resolves when</th><th>Rejects when</th><th>Use it for</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>Promise.all</code></td><td>all fulfill</td><td>any one rejects (immediately)</td><td>independent work you need entirely</td></tr>
+                <tr><td><code>Promise.allSettled</code></td><td>all settle, either way</td><td>never</td><td>reports where partial failures are fine</td></tr>
+                <tr><td><code>Promise.race</code></td><td>the first to settle</td><td>if that first one rejects</td><td>timeouts</td></tr>
+                <tr><td><code>Promise.any</code></td><td>the first to fulfill</td><td>only if all reject</td><td>redundant sources, fastest wins</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">combinators.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// All must succeed — rejects fast if any one fails
+const [users, orders] = await Promise.all([getUsers(), getOrders()]);
+
+// Never rejects — inspect each outcome
+const results = await Promise.allSettled([getUsers(), getOrders()]);
+results.forEach((r) =&gt; {
+  console.log(r.status, r.status === 'fulfilled' ? r.value : r.reason);
+});
+
+// Timeout pattern: whichever settles first wins
+const data = await Promise.race([
+  fetch('/api/report'),
+  delay(5000).then(() =&gt; Promise.reject(new Error('Timed out')))
+]);</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li>A promise is a placeholder for a future value that settles exactly once.</li>
+            <li><code>then</code> returns a new promise, which is what enables chaining and flattening.</li>
+            <li><code>Promise.all</code> fails fast; <code>allSettled</code> never fails; <code>race</code> takes the first; <code>any</code> takes the first success.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 04 -->
+        <section id="async-await">
+          <h2><span class="h2-num">04 — Section</span>async / await</h2>
+
+          <p>
+            <strong><code>async</code> and <code>await</code> are syntax on top of promises.</strong>
+            Nothing new happens underneath — but the code reads like it's synchronous, which is
+            exactly the point.
+          </p>
+
+          <ul>
+            <li>An <code>async</code> function <strong>always returns a promise</strong>. Returning <code>5</code> returns <code>Promise.resolve(5)</code>.</li>
+            <li><code>await</code> unwraps a promise. It pauses <strong>only the current async function</strong> — never the thread.</li>
+            <li>Errors become normal exceptions, so <code>try</code>/<code>catch</code> works again.</li>
+          </ul>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">load-config.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function loadConfig() {
+  try {
+    const content = await readFile('./config.json');
+    return JSON.parse(content);
+  } catch (error) {
+    console.error('Failed to load config:', error.message);
+    return null;          // recovery value, or rethrow
+  } finally {
+    console.log('loadConfig finished');
+  }
+}</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Await doesn't block the thread</div>
+              <p>
+                People assume <code>await</code> freezes the page. It doesn't. It suspends the
+                <em>function</em> and returns control to the event loop, which keeps running
+                everything else. The function resumes later, exactly where it left off.
+              </p>
+            </div>
+          </div>
+
+          <h3 id="sequential-vs-parallel">Sequential vs parallel — the expensive mistake</h3>
+
+          <p>
+            This is the single most valuable habit in this category. <code>await</code> in sequence
+            means <em>wait for this, then wait for that</em>. If the operations are independent, you
+            just paid for all of them one after another for no reason.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">slow.js — about 3 seconds</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function loadDashboard() {
+  const users = await getUsers();        // 1s
+  const orders = await getOrders();      // 1s, starts only after users finishes
+  const invoices = await getInvoices();  // 1s, starts only after orders finishes
+
+  return { users, orders, invoices };
+}</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">fast.js — about 1 second</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function loadDashboard() {
+  // Start all three immediately, then await them together
+  const [users, orders, invoices] = await Promise.all([
+    getUsers(),
+    getOrders(),
+    getInvoices()
+  ]);
+
+  return { users, orders, invoices };
+}</code></pre>
+          </div>
+
+          <p>
+            Both versions are correct. Only one respects your users' time. The rule: <strong>await
+            at the last possible moment, and never inside a loop over independent work.</strong>
+          </p>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The loop trap</div>
+              <p>
+                <code>for (const id of ids) { await fetchUser(id); }</code> processes the ids one at
+                a time. If they're independent, use
+                <code>await Promise.all(ids.map(id =&gt; fetchUser(id)))</code> instead. Do keep the
+                loop when you genuinely need order, or when you're deliberately rate-limiting.
+              </p>
+            </div>
+          </div>
+
+          <p>
+            When you do have an async iterable — a stream, or a paginated API — <code>for await
+            ... of</code> gives you the readable loop <em>and</em> the sequential guarantee:
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">stream.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">for await (const chunk of readStream('./big.log')) {
+  process.stdout.write(chunk);
+}</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li><code>async</code> always returns a promise; <code>await</code> unwraps one.</li>
+            <li><code>await</code> suspends the function, never the thread.</li>
+            <li>Independent work belongs in <code>Promise.all</code>, not in a sequence of awaits.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 05 -->
+        <section id="event-loop">
+          <h2><span class="h2-num">05 — Section</span>The Event Loop</h2>
+
+          <p>
+            Everything above only makes sense once you know where the callbacks actually wait. The
+            event loop is the mechanism that decides what runs next.
+          </p>
+
+          <p>Four pieces, and only four:</p>
+
+          <ul>
+            <li><strong>Call stack</strong> — the function currently running. Single-threaded.</li>
+            <li><strong>Host environment</strong> — the browser or Node's C++ layer. Timers and I/O wait out here, off-thread.</li>
+            <li><strong>Task queue</strong> (macrotasks) — callbacks from <code>setTimeout</code>, <code>setInterval</code>, I/O, UI events.</li>
+            <li><strong>Microtask queue</strong> — promise callbacks, <code>queueMicrotask</code>, <code>MutationObserver</code>.</li>
+          </ul>
+
+          <p>
+            The whole rule, in one sentence: <strong>when the call stack empties, drain the entire
+            microtask queue, and only then take the next macrotask.</strong>
+          </p>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Why this ordering exists</div>
+              <p>
+                Microtasks are promise continuations — they must run before the browser paints or
+                handles the next event, otherwise the state your code depends on would be
+                inconsistent. So they get priority, and they get <em>all</em> of it.
+              </p>
+            </div>
+          </div>
+
+          <h3 id="microtasks">Microtasks vs macrotasks, in practice</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">order.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.log('1 — script start');
+
+setTimeout(() =&gt; console.log('5 — setTimeout'), 0);
+
+Promise.resolve().then(() =&gt; console.log('3 — promise'));
+queueMicrotask(() =&gt; console.log('4 — queueMicrotask'));
+
+console.log('2 — script end');</code></pre>
+          </div>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">terminal</span>
+              <span class="code-lang">output</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-plaintext">1 — script start
+2 — script end
+3 — promise
+4 — queueMicrotask
+5 — setTimeout</code></pre>
+          </div>
+
+          <p>
+            The timer was registered <em>first</em>, and it still ran last. Both numbers 3 and 4 are
+            microtasks, so they drain completely before the event loop is allowed to look at the
+            task queue at all.
+          </p>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Starvation</div>
+              <p>
+                Because the microtask queue must be <em>empty</em> before the next macrotask, a
+                promise chain that keeps queueing more microtasks can block timers, rendering and
+                I/O forever. The page appears hung. If you're scheduling a lot of work, prefer
+                <code>setTimeout(fn, 0)</code> or <code>setImmediate</code> to yield between batches.
+              </p>
+            </div>
+          </div>
+
+          <p>
+            One more consequence worth knowing: <code>setTimeout(fn, 0)</code> is not "run
+            immediately". It means "run after at least 0ms, once the stack is clear and all
+            microtasks are drained" — and browsers clamp nested timers to 4ms.
+          </p>
+
+          <ul class="keypoints">
+            <li>Synchronous code always finishes first, to the very last line.</li>
+            <li>Then all microtasks drain — promises and <code>queueMicrotask</code>.</li>
+            <li>Then one macrotask runs, and the cycle repeats.</li>
+            <li>Microtasks have priority, which means they can starve everything else.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 06 -->
+        <section id="timers">
+          <h2><span class="h2-num">06 — Section</span>Timers &amp; Scheduling</h2>
+
+          <p>
+            There isn't one way to "run this later" — there are six, and they land in different
+            queues. Picking the wrong one is how you get flicker, jank and drift.
+          </p>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>API</th><th>Queue</th><th>Runs</th><th>Use it for</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>queueMicrotask</code></td><td>microtask</td><td>before any macrotask</td><td>tiny deferral, keeping state consistent</td></tr>
+                <tr><td><code>process.nextTick</code></td><td>microtask (Node, higher priority)</td><td>before promise microtasks</td><td>Node internals; be careful — it can starve I/O</td></tr>
+                <tr><td><code>setTimeout(fn, 0)</code></td><td>macrotask</td><td>after microtasks drain</td><td>yielding, deferring heavy work</td></tr>
+                <tr><td><code>setImmediate</code></td><td>macrotask (Node)</td><td>after I/O in the same loop pass</td><td>Node-specific yielding</td></tr>
+                <tr><td><code>setInterval</code></td><td>macrotask</td><td>repeatedly, roughly every N ms</td><td>polling — but prefer self-scheduling</td></tr>
+                <tr><td><code>requestAnimationFrame</code></td><td>render step</td><td>before the next paint</td><td>anything visual</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Timers drift</div>
+              <p>
+                <code>setInterval(fn, 1000)</code> waits 1000ms, runs <code>fn</code>, then waits
+                another 1000ms. It does not account for how long <code>fn</code> took. If your
+                callback takes 40ms, you drift 40ms further behind every tick — and it never
+                corrects.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">drift.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Measure the drift instead of assuming it away
+let expected = Date.now() + 1000;
+
+const id = setInterval(() =&gt; {
+  const drift = Date.now() - expected;
+  if (drift &gt; 50) console.log(`setInterval is ${drift}ms behind`);
+
+  expected += 1000;   // the schedule never moves to catch up
+}, 1000);
+
+// To correct it, schedule the NEXT tick relative to the target time
+function tick() {
+  const now = Date.now();
+  const delay = 1000 - (now % 1000);   // land on the next whole second
+  setTimeout(tick, delay);
+}
+
+clearInterval(id);</code></pre>
+          </div>
+
+          <h3 id="debounce">Debounce — collapse a burst into one call</h3>
+
+          <p>
+            Every keystroke firing a search request is the classic performance mistake.
+            <strong>Debounce</strong> waits for quiet; <strong>throttle</strong> guarantees a
+            steady rate.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">debounce.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function debounce(fn, delay) {
+  let timer;
+
+  return function (...args) {
+    clearTimeout(timer);          // cancel the pending call
+    timer = setTimeout(() =&gt; fn.apply(this, args), delay);
+  };
+}
+
+const search = debounce((term) =&gt; console.log('searching:', term), 300);
+
+search('j');
+search('ja');
+search('jav');
+// Only "searching: jav" runs — 300ms after the typing stopped.</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">throttle.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function throttle(fn, interval) {
+  let last = 0;
+  let queued = null;
+
+  return function (...args) {
+    const now = Date.now();
+    const remaining = interval - (now - last);
+
+    if (remaining &lt;= 0) {
+      if (queued) { clearTimeout(queued); queued = null; }
+      last = now;
+      fn.apply(this, args);
+      return;
+    }
+
+    // Keep one trailing call so the final event is never lost
+    if (!queued) {
+      queued = setTimeout(() =&gt; {
+        last = Date.now();
+        queued = null;
+        fn.apply(this, args);
+      }, remaining);
+    }
+  };
+}
+
+const onScroll = throttle(() =&gt; console.log('scroll handler'), 100);</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Both are just closures</div>
+              <p>
+                Look at where <code>timer</code>, <code>last</code> and <code>queued</code> live —
+                they're inside the outer function, so they survive between calls but are invisible
+                from outside. That's the entire trick, and it's the same mechanism Category 3
+                covers in depth.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Six scheduling APIs, two queues, and one render step — pick deliberately.</li>
+            <li><code>setInterval</code> accumulates drift; self-scheduling <code>setTimeout</code> can correct it.</li>
+            <li>Debounce waits for quiet; throttle caps the rate.</li>
+            <li>Anything visual belongs in <code>requestAnimationFrame</code>, never a timer.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 07 -->
+        <section id="concurrency">
+          <h2><span class="h2-num">07 — Section</span>Concurrency Control</h2>
+
+          <p>
+            <code>Promise.all(urls.map(fetch))</code> looks elegant and will happily open five
+            thousand connections at once. Real systems need limits, retries and timeouts — and all
+            three are a dozen lines each.
+          </p>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Unbounded parallelism is a bug</div>
+              <p>
+                Every <code>fetch</code> holds a socket, a file descriptor and memory. Fire 5000 at
+                once and you'll exhaust the connection pool, get rate-limited or
+                <code>ECONNRESET</code>, and in Node you may hit the file-descriptor limit. The fix
+                is not "await them one at a time" — it's a bounded pool.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">map-limit.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function mapLimit(items, limit, worker) {
+  const results = new Array(items.length);
+  let next = 0;
+
+  // Each runner pulls the next index whenever it becomes free —
+  // so no worker sits idle while others still have work.
+  async function runner() {
+    while (next &lt; items.length) {
+      const index = next++;
+      results[index] = await worker(items[index], index);
+    }
+  }
+
+  const runners = Array.from(
+    { length: Math.min(limit, items.length) },
+    () =&gt; runner()
+  );
+
+  await Promise.all(runners);
+  return results;          // original order, regardless of completion order
+}
+
+const pages = await mapLimit(urls, 5, (url) =&gt;
+  fetch(url).then((response) =&gt; response.text())
+);</code></pre>
+          </div>
+
+          <h3>Retries with exponential backoff</h3>
+
+          <p>
+            Transient failures — a dropped connection, a 503 — usually succeed on a second attempt.
+            But retrying immediately and in lockstep makes the outage worse.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">retry.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function retry(fn, { attempts = 3, base = 300, max = 5000 } = {}) {
+  let lastError;
+
+  for (let attempt = 0; attempt &lt; attempts; attempt++) {
+    try {
+      return await fn(attempt);
+    } catch (error) {
+      lastError = error;
+      if (attempt === attempts - 1) break;
+
+      // Exponential backoff WITH jitter.
+      // Without the random part, every client retries at the same instant.
+      const delay = Math.min(max, base * 2 ** attempt) + Math.random() * base;
+      console.warn(`attempt ${attempt + 1} failed — retrying in ${Math.round(delay)}ms`);
+      await new Promise((resolve) =&gt; setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError;
+}
+
+const data = await retry(() =&gt; fetchJson('/api/report'));</code></pre>
+          </div>
+
+          <h3>Timeouts that actually cancel</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">timeout.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function fetchWithTimeout(url, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() =&gt; controller.abort(), ms);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    return await response.json();
+  } finally {
+    clearTimeout(timer);     // never leave a timer holding a reference
+  }
+}
+
+// Modern shorthand, same behaviour:
+const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+
+// Race-based timeout (works for anything, not just fetch):
+const withDeadline = (promise, ms) =&gt; Promise.race([
+  promise,
+  new Promise((_, reject) =&gt;
+    setTimeout(() =&gt; reject(new Error(`Timed out after ${ms}ms`)), ms)
+  )
+]);</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">The race-based version leaks</div>
+              <p>
+                <code>Promise.race</code> rejects the wrapper but the original promise keeps
+                running, and its timer keeps the process alive. <code>AbortController</code> is
+                better because it genuinely cancels the underlying work. When you must use
+                <code>race</code>, clear the timer in a <code>finally</code>.
+              </p>
+            </div>
+          </div>
+
+          <h3>Turning callbacks into promises</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">promisify.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Node ships a helper for the error-first convention
+const { promisify } = require('node:util');
+const { readFile } = require('node:fs');
+const readFileAsync = promisify(readFile);
+
+// By hand — the shape every wrapper follows
+function readFileText(path) {
+  return new Promise((resolve, reject) =&gt; {
+    readFile(path, 'utf8', (error, data) =&gt; {
+      if (error) reject(error);
+      else resolve(data);
+    });
+  });
+}
+
+// Node also exposes promise-first APIs directly
+const fs = require('node:fs/promises');
+await fs.readFile('./config.json', 'utf8');</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li>Bound your parallelism — unbounded <code>Promise.all</code> exhausts sockets and memory.</li>
+            <li>Retry with exponential backoff plus jitter, and cap the attempts.</li>
+            <li><code>AbortController</code> cancels work; <code>Promise.race</code> only stops waiting.</li>
+            <li>Wrap error-first callbacks into promises, or use <code>node:fs/promises</code> directly.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 08 -->
+        <section id="async-errors">
+          <h2><span class="h2-num">08 — Section</span>Errors in Async Code</h2>
+
+          <p>
+            Async errors escape in ways synchronous ones never do — a rejected promise nobody
+            awaited doesn't throw at the call site, it surfaces later as an
+            <code>unhandledRejection</code>. These are the patterns that keep failures visible.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">the-silent-bug.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function load() {
+  try {
+    fetchUser();          // no `await` — the rejection escapes the try block
+  } catch (error) {
+    console.log('This never runs');
+  }
+}
+
+// Correct: await it so the rejection happens INSIDE the try
+async function loadProperly() {
+  try {
+    return await fetchUser();
+  } catch (error) {
+    console.error('Caught:', error.message);
+    return null;
+  }
+}</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title"><code>return await</code> is not redundant</div>
+              <p>
+                Linters often flag <code>return await fn()</code> as unnecessary. Inside a
+                <code>try</code>/<code>catch</code> it is <em>required</em> — dropping the
+                <code>await</code> means the rejection happens after the function has already
+                returned, so your <code>catch</code> never sees it and your
+                <code>finally</code> runs before the work is done.
+              </p>
+            </div>
+          </div>
+
+          <h3>Preserve the cause, and use real error types</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">errors.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// `cause` keeps the original failure attached
+async function loadConfig(path) {
+  try {
+    return JSON.parse(await readFile(path, 'utf8'));
+  } catch (error) {
+    throw new Error(`Could not load config from ${path}`, { cause: error });
+  }
+}
+
+// Custom types let callers branch on WHY it failed
+class ValidationError extends Error {
+  constructor(message, field) {
+    super(message);
+    this.name = 'ValidationError';
+    this.field = field;
+  }
+}
+
+try {
+  await saveUser(input);
+} catch (error) {
+  if (error instanceof ValidationError) {
+    showFieldError(error.field, error.message);      // recoverable
+  } else {
+    throw error;                                     // unknown — do not swallow it
+  }
+}</code></pre>
+          </div>
+
+          <h3>Fail-fast vs collect-everything</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">all-vs-allsettled.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Promise.all rejects immediately — the successful results are DISCARDED
+const [a, b] = await Promise.all([works(), fails()]);   // throws; `a` is lost
+
+// allSettled never rejects, so you keep the good work
+const results = await Promise.allSettled([works(), fails()]);
+
+const succeeded = results
+  .filter((r) =&gt; r.status === 'fulfilled')
+  .map((r) =&gt; r.value);
+
+const failed = results
+  .filter((r) =&gt; r.status === 'rejected')
+  .map((r) =&gt; r.reason);
+
+console.log(`${succeeded.length} ok, ${failed.length} failed`);</code></pre>
+          </div>
+
+          <h3>Process-level safety nets</h3>
+
+          <p>
+            A rejected promise that nobody handles will, in modern Node, terminate the process. That
+            default is correct — but you want the failure logged with context first.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">safety-net.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">process.on('unhandledRejection', (reason) =&gt; {
+  console.error('Unhandled rejection:', reason);
+  process.exitCode = 1;      // mark the run as failed, exit gracefully
+});
+
+process.on('uncaughtException', (error) =&gt; {
+  console.error('Uncaught exception:', error);
+  // The process state is unknown now — log, flush, and DO NOT continue.
+  process.exit(1);
+});
+
+// Cleanup that must always run
+process.on('SIGINT', async () =&gt; {
+  await server.close();
+  await database.end();
+  process.exit(0);
+});</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Always release resources in <code>finally</code></div>
+              <p>
+                Timers, locks, database connections, file handles. Anything you acquire before an
+                <code>await</code> must be released even if the await rejects — and
+                <code>finally</code> is the only construct that runs on both paths.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>An un-awaited call inside <code>try</code> is not caught — <code>await</code> it.</li>
+            <li>Use <code>Error</code>'s <code>cause</code> option to keep the original failure.</li>
+            <li>Custom error classes let callers recover from specific failures and rethrow the rest.</li>
+            <li><code>allSettled</code> when partial success matters; <code>all</code> when it doesn't.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 09 -->
+        <section id="streams">
+          <h2><span class="h2-num">09 — Section</span>Streams &amp; Async Iteration</h2>
+
+          <p>
+            Everything so far assumed the data eventually arrives <em>all at once</em>. Streams are
+            for when it doesn't — a 4GB log file, a video upload, a live feed. The data arrives in
+            chunks, over time, and you process each chunk as it lands.
+          </p>
+
+          <p>
+            The reason is memory, and it isn't subtle.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">memory.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const fs = require('node:fs');
+
+// These two do the same job. Only one survives a large file.
+//
+// readFile: allocates the WHOLE file in memory before you see byte one.
+// A 4GB file needs 4GB of RAM — and it may exceed Node's heap limit first.
+const content = await fs.promises.readFile('./huge.log', 'utf8');
+console.log(content.length);
+
+// createReadStream: a small internal buffer, refilled as you consume it.
+// Constant memory whether the file is 4KB or 40GB.
+const stream = fs.createReadStream('./huge.log', { encoding: 'utf8' });
+
+let bytes = 0;
+stream.on('data', (chunk) =&gt; {
+  bytes += chunk.length;
+});
+stream.on('end', () =&gt; console.log('total bytes:', bytes));
+
+// 'error' is not optional — without a handler an unhandled stream error
+// takes the whole process down.
+stream.on('error', (error) =&gt; console.error('failed:', error.message));</code></pre>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Type</th><th>Direction</th><th>Examples</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Readable</strong></td><td>source — you consume it</td><td><code>createReadStream</code>, <code>process.stdin</code>, an HTTP request</td></tr>
+                <tr><td><strong>Writable</strong></td><td>sink — you write to it</td><td><code>createWriteStream</code>, <code>process.stdout</code>, an HTTP response</td></tr>
+                <tr><td><strong>Duplex</strong></td><td>both, independently</td><td>a TCP socket, a WebSocket</td></tr>
+                <tr><td><strong>Transform</strong></td><td>both, connected</td><td><code>zlib.createGzip()</code>, a cipher, a parser</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Backpressure — the concept everything else serves</h3>
+
+          <p>
+            A fast producer and a slow consumer is a memory leak waiting to happen. If you keep
+            reading faster than you can write, the unread data piles up in an internal buffer until
+            you run out of memory.
+          </p>
+
+          <p>
+            <strong>Backpressure is the stream telling the producer to slow down.</strong> It's
+            built into the API: <code>write()</code> returns <code>false</code> when the buffer is
+            full, and you wait for the <code>drain</code> event before writing again.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">backpressure.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const { once } = require('node:events');
+
+async function writeAll(writable, chunks) {
+  for (const chunk of chunks) {
+    // write() returns false as soon as the internal buffer passes
+    // the highWaterMark. Ignoring that return value is how processes die.
+    const ok = writable.write(chunk);
+
+    if (!ok) {
+      // Wait for the consumer to catch up before producing more
+      await once(writable, 'drain');
+    }
+  }
+
+  writable.end();
+}
+
+// In practice you rarely hand-roll this — pipeline() and for-await
+// both respect backpressure for you.</code></pre>
+          </div>
+
+          <h3><code>pipeline</code> — not <code>pipe</code></h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">compress.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const fs = require('node:fs');
+const { pipeline } = require('node:stream/promises');
+const { createGzip } = require('node:zlib');
+
+// pipeline() wires the streams together, propagates the FIRST error
+// to every stage, and destroys all of them so nothing leaks.
+await pipeline(
+  fs.createReadStream('./big.log'),
+  createGzip(),
+  fs.createWriteStream('./big.log.gz')
+);
+
+console.log('compressed');
+
+// The older .pipe() does NOT do that. An error in the middle stage
+// is emitted on that stream and the others keep running — the destination
+// never closes, the promise never settles, and the file is left half-written.
+// fs.createReadStream(a).pipe(gzip).pipe(fs.createWriteStream(b));</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title"><code>pipe()</code> does not forward errors</div>
+              <p>
+                This is the single most common stream bug. With <code>pipe()</code> you must attach
+                an <code>'error'</code> handler to <em>every</em> stream in the chain, and clean up
+                the rest yourself when one fails. <code>pipeline()</code> exists purely to make that
+                automatic. If you take one thing from this section, take this.
+              </p>
+            </div>
+          </div>
+
+          <h3>Transform — change data as it flows past</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">uppercase.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const { Transform } = require('node:stream');
+
+const upperCase = new Transform({
+  transform(chunk, encoding, callback) {
+    // call callback(error, data) — exactly once, always
+    callback(null, chunk.toString().toUpperCase());
+  }
+});
+
+await pipeline(
+  fs.createReadStream('./input.txt'),
+  upperCase,
+  fs.createWriteStream('./output.txt')
+);
+
+// A transform can also buffer across chunks — useful for parsing.
+// This one emits a record for every complete line it sees.
+const lineSplitter = new Transform({
+  readableObjectMode: true,
+  transform(chunk, encoding, callback) {
+    this.buffer = (this.buffer || '') + chunk.toString();
+
+    const lines = this.buffer.split('\n');
+    this.buffer = lines.pop();          // keep the incomplete tail
+
+    for (const line of lines) this.push(line);
+    callback();
+  },
+  flush(callback) {
+    if (this.buffer) this.push(this.buffer);   // don't lose the last line
+    callback();
+  }
+});</code></pre>
+          </div>
+
+          <h3 id="for-await">Async iteration — the readable way to consume a stream</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">for-await.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const { createReadStream } = require('node:fs');
+
+// A readable stream is an async iterable — no event handlers needed,
+// and if your loop body awaits, backpressure is applied automatically.
+let bytes = 0;
+
+for await (const chunk of createReadStream('./big.log', { encoding: 'utf8' })) {
+  bytes += chunk.length;
+}
+
+console.log('total:', bytes);
+
+// CAUTION: chunk boundaries have nothing to do with lines.
+// A chunk can end mid-line, or contain twenty lines. Always buffer.</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">read-lines.js — an async generator</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const { createReadStream } = require('node:fs');
+
+// async function* — yields values over time, and can await inside
+async function* readLines(path) {
+  const stream = createReadStream(path, { encoding: 'utf8' });
+  let buffer = '';
+
+  for await (const chunk of stream) {
+    buffer += chunk;
+
+    const lines = buffer.split('\n');
+    buffer = lines.pop();          // the last piece may be incomplete
+
+    for (const line of lines) yield line;
+  }
+
+  if (buffer) yield buffer;        // never drop the final unterminated line
+}
+
+for await (const line of readLines('./access.log')) {
+  if (line.includes(' 500 ')) console.log(line);
+}</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Streams compose like array methods</div>
+              <p>
+                Once you have an async generator, you can build <code>map</code>,
+                <code>filter</code> and <code>take</code> for streams that look exactly like their
+                array counterparts — and consume a multi-gigabyte file with the same code shape as a
+                five-element array.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">compose.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function* map(source, fn) {
+  for await (const item of source) yield fn(item);
+}
+
+async function* filter(source, predicate) {
+  for await (const item of source) {
+    if (predicate(item)) yield item;
+  }
+}
+
+async function* take(source, count) {
+  let seen = 0;
+  for await (const item of source) {
+    if (seen++ &gt;= count) return;
+    yield item;
+  }
+}
+
+// Read a 10GB log, keep only the errors, and stop after the first ten —
+// while touching a few kilobytes of memory in total.
+const firstErrors = take(
+  filter(readLines('./access.log'), (line) =&gt; line.includes(' 500 ')),
+  10
+);
+
+for await (const line of firstErrors) {
+  console.log(line);
+}
+
+// Note the laziness: `take` returns after ten items, which throws into
+// the generators below it, which ends the for-await over the file —
+// so the whole file is never read. That is the point.</code></pre>
+          </div>
+
+          <h3>Web streams — the same idea, in the browser</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">web-streams.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// fetch() gives you a stream, not a string. response.json() just
+// consumes it for you. Reading it yourself lets you show progress.
+const response = await fetch('/api/large-report');
+
+// Downloads are not instant — check the declared size when there is one
+const total = Number(response.headers.get('content-length')) || 0;
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+let received = 0;
+let text = '';
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  received += value.length;
+  text += decoder.decode(value, { stream: true });   // `stream: true` matters
+
+  if (total) console.log(`${Math.round((received / total) * 100)}%`);
+}
+
+// Streaming is also how you render a chat response token by token
+// instead of staring at a spinner for four seconds.</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li>Streams trade a little code complexity for constant memory usage.</li>
+            <li>Use <code>pipeline()</code>, never <code>pipe()</code> — errors must propagate.</li>
+            <li>Backpressure is <code>write()</code> returning <code>false</code> plus the <code>drain</code> event.</li>
+            <li>Chunk boundaries never align with lines — always buffer the remainder.</li>
+            <li>Async generators turn a stream into something that reads like an array.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 10 -->
+        <section id="realtime">
+          <h2><span class="h2-num">10 — Section</span>Real-Time Communication</h2>
+
+          <p>
+            Polling, Server-Sent Events and WebSockets all deliver "live" data — and they are not
+            interchangeable. Choosing wrong means either wasted requests or a lot of unnecessary
+            infrastructure.
+          </p>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Transport</th><th>Direction</th><th>Reconnect</th><th>Use it for</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Polling</strong></td><td>client pulls</td><td>you write it</td><td>data that changes slowly; the simplest thing that works</td></tr>
+                <tr><td><strong>Long polling</strong></td><td>client pulls, server holds</td><td>you write it</td><td>near-real-time on legacy infrastructure</td></tr>
+                <tr><td><strong>SSE</strong> (<code>EventSource</code>)</td><td>server → client only</td><td>automatic, built in</td><td>dashboards, notifications, live prices</td></tr>
+                <tr><td><strong>WebSocket</strong></td><td>both directions</td><td>you write it</td><td>chat, collaboration, games, anything interactive</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Polling — start here, honestly</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">poll.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function refresh() {
+  try {
+    const response = await fetch('/api/status');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    render(await response.json());
+  } catch (error) {
+    console.warn('poll failed, will retry:', error.message);
+  }
+}
+
+// Self-scheduling rather than setInterval: the next request is only
+// queued after this one finishes, so a slow server can't pile up requests.
+let stopped = false;
+
+async function loop() {
+  while (!stopped) {
+    await refresh();
+    await new Promise((resolve) =&gt; setTimeout(resolve, 5000));
+  }
+}
+loop();
+
+// Always stop when the page goes away, and pause when it's hidden —
+// a background tab polling every 5s is pure waste.
+document.addEventListener('visibilitychange', () =&gt; {
+  stopped = document.hidden;
+  if (!stopped) loop();
+});</code></pre>
+          </div>
+
+          <h3>Server-Sent Events — a stream you subscribe to</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">sse.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// One-way, over plain HTTP, with reconnection handled for you.
+const source = new EventSource('/api/events');
+
+source.onmessage = (event) =&gt; {
+  console.log('update:', JSON.parse(event.data));
+};
+
+// Named events let one connection carry several kinds of message
+source.addEventListener('price', (event) =&gt; {
+  updatePrice(JSON.parse(event.data));
+});
+
+source.addEventListener('presence', (event) =&gt; {
+  updatePresence(JSON.parse(event.data));
+});
+
+source.onerror = () =&gt; {
+  // EventSource reconnects by itself. But it retries FOREVER —
+  // including on a 401 or a 404, where retrying will never help.
+  if (source.readyState === EventSource.CLOSED) {
+    console.error('SSE permanently closed');
+  }
+};
+
+// Server side, for reference — the format is strict:
+//   res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+//   res.write(`event: price\ndata: ${JSON.stringify(tick)}\n\n`);
+// The blank line is what terminates an event. Miss it and nothing arrives.
+
+// Closing: an open EventSource holds a connection slot. Don't leak it.
+window.addEventListener('beforeunload', () =&gt; source.close());</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">SSE is underrated</div>
+              <p>
+                If data only flows <em>to</em> the browser, SSE is almost always the right answer:
+                it's plain HTTP, it works through proxies, it reconnects automatically, and it needs
+                no extra protocol or server library. Reach for WebSockets when you genuinely need to
+                send messages upstream on the same channel.
+              </p>
+            </div>
+          </div>
+
+          <h3>WebSockets — bidirectional and persistent</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">socket.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const socket = new WebSocket('wss://example.com/live');   // wss, not ws, in production
+
+socket.addEventListener('open', () =&gt; {
+  console.log('connected');
+  socket.send(JSON.stringify({ type: 'subscribe', channel: 'prices' }));
+});
+
+socket.addEventListener('message', (event) =&gt; {
+  const message = JSON.parse(event.data);
+
+  // ALWAYS switch on a type field. A server that adds a new message type
+  // must not crash every client that hasn't been redeployed.
+  switch (message.type) {
+    case 'price':  updatePrice(message.payload);  break;
+    case 'error':  console.error(message.message); break;
+    case 'pong':   break;
+    default:       console.warn('unknown message type:', message.type);
+  }
+});
+
+socket.addEventListener('error', () =&gt; {
+  // 'error' carries almost no information by design (it would leak
+  // cross-origin details). Use the 'close' event's code instead.
+});
+
+socket.addEventListener('close', (event) =&gt; {
+  console.log('closed', event.code, event.reason);
+});</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">reconnect.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// A WebSocket does NOT reconnect on its own. This wrapper does.
+function connect(url, onMessage) {
+  let socket;
+  let attempt = 0;
+  let closedByUs = false;
+  let heartbeat = null;
+  let lastSeen = Date.now();
+
+  function open() {
+    socket = new WebSocket(url);
+
+    socket.addEventListener('open', () =&gt; {
+      attempt = 0;                     // reset backoff after a good connection
+      lastSeen = Date.now();
+      console.log('connected');
+
+      // Detect half-open connections: a laptop lid closing, a NAT timeout
+      // or dropped wifi will not fire 'close'. Only silence reveals it.
+      heartbeat = setInterval(() =&gt; {
+        if (Date.now() - lastSeen &gt; 45000) {
+          console.warn('connection looks dead — forcing a reconnect');
+          socket.close();
+          return;
+        }
+        socket.send(JSON.stringify({ type: 'ping' }));
+      }, 15000);
+    });
+
+    socket.addEventListener('message', (event) =&gt; {
+      lastSeen = Date.now();
+      if (event.data === 'pong') return;
+      onMessage(JSON.parse(event.data));
+    });
+
+    socket.addEventListener('close', () =&gt; {
+      clearInterval(heartbeat);
+
+      if (closedByUs) return;
+
+      // 1s, 2s, 4s, 8s… capped at 30s. The jitter matters: without it,
+      // every client that dropped together reconnects together and
+      // hammers the server in synchronised waves.
+      const delay = Math.min(30000, 1000 * 2 ** attempt) + Math.random() * 500;
+      attempt++;
+      console.warn(`reconnecting in ${Math.round(delay)}ms`);
+      setTimeout(open, delay);
+    });
+  }
+
+  open();
+
+  return {
+    send(message) {
+      if (socket?.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(message));
+        return true;
+      }
+      return false;                    // caller decides whether to queue it
+    },
+    close() {
+      closedByUs = true;
+      clearInterval(heartbeat);
+      socket?.close();
+    }
+  };
+}</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">WebSockets bypass your HTTP security model</div>
+              <p>
+                There is no same-origin policy, no CORS preflight, and no
+                <code>Authorization</code> header on the handshake unless you add one. Cookies
+                <em>are</em> sent automatically, which means a hostile page can open a socket to
+                your server using the user's session — cross-site WebSocket hijacking. Validate the
+                <code>Origin</code> header, authenticate the handshake explicitly with a token, and
+                re-authorise on every message rather than trusting the connection for its lifetime.
+              </p>
+            </div>
+          </div>
+
+          <h3>Queueing messages before the socket is ready</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">outbox.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// A socket takes time to open. Anything sent before that is silently
+// dropped — so hold those messages and flush them on connect.
+const outbox = [];
+
+function send(socket, message) {
+  const text = JSON.stringify(message);
+
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(text);
+    return;
+  }
+
+  outbox.push(text);
+}
+
+socket.addEventListener('open', () =&gt; {
+  while (outbox.length) socket.send(outbox.shift());
+});
+
+// Cap it, or a long outage becomes an unbounded array — the same
+// principle as the bounded history in Category 5.
+const MAX_QUEUED = 100;
+if (outbox.length &lt; MAX_QUEUED) outbox.push(text);</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li>Start with polling; move to SSE when the server pushes; WebSockets when it's interactive.</li>
+            <li>SSE reconnects automatically — WebSockets never do. You must write that wrapper.</li>
+            <li>Add jitter to backoff, or reconnecting clients synchronise into a thundering herd.</li>
+            <li>Half-open connections only reveal themselves through heartbeats.</li>
+            <li>Authenticate and validate the origin — WebSockets ignore CORS.</li>
+          </ul>
+        </section>
+
+        <!-- =================================================== PLAYGROUND -->
+        <section id="playground">
+          <h2><span class="h2-num">Playground</span>Watch the event loop run</h2>
+
+          <p>
+            This runs in your browser with real timers and real promises. Predict the order before
+            you press Run — then check yourself.
+          </p>
+
+          <div class="playground" data-playground data-entry="main.js">
+            <div class="pg-bar">
+              <span class="pg-badge"><i></i> async sandbox</span>
+              <div class="pg-tabs">
+                <button class="pg-tab" type="button" data-file="main.js">main.js</button>
+              </div>
+              <div class="pg-actions">
+                <button class="pg-btn pg-clear" type="button">Clear</button>
+                <button class="pg-btn pg-reset" type="button">Reset</button>
+                <button class="pg-btn pg-btn-run pg-run" type="button">Run &#9654;</button>
+              </div>
+            </div>
+
+            <div class="pg-editors">
+              <div class="pg-editor is-active" data-name="main.js">
+                <textarea rows="20">// Predict the output order before running.
+console.log('1 — script start');
+
+setTimeout(() => console.log('macrotask: setTimeout'), 0);
+
+Promise.resolve().then(() => console.log('microtask: promise.then'));
+queueMicrotask(() => console.log('microtask: queueMicrotask'));
+
+async function loadUser() {
+  console.log('2 — inside async fn (runs synchronously)');
+  await null;                      // suspends here, resumes as a microtask
+  console.log('microtask: after await');
+  return { name: 'Alice' };
+}
+
+loadUser().then((user) => console.log('microtask: then ->', user.name));
+
+console.log('3 — script end');</textarea>
+              </div>
+            </div>
+
+            <div class="pg-out-wrap">
+              <div class="pg-out-label">console output</div>
+              <div class="pg-out"></div>
+            </div>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Read the "finished in…" line carefully</div>
+              <p>
+                It appears in the middle of the output, before the microtasks. That's not a bug in
+                the playground — it's the proof. The script <em>finished</em>, so the synchronous
+                phase was over, and only then did the queued work start running.
+              </p>
+            </div>
+          </div>
+
+          <div class="pg-meta">
+            <span>Swap <code>await null</code> for <code>await delay(0)</code> using a promise-wrapped <code>setTimeout</code> and watch the order change.</span>
+            <span><code>Ctrl</code>+<code>Enter</code> runs.</span>
+          </div>
+        </section>
+
+        <!-- =================================================== CHECKPOINT -->
+        <section id="checkpoint">
+          <h2><span class="h2-num">Checkpoint</span>Test yourself</h2>
+
+          <p>Three questions. Click an answer to check it — the explanation appears underneath.</p>
+
+          <div class="quiz">
+            <div class="quiz-head">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Async &amp; event loop checkpoint
+            </div>
+            <div class="quiz-body">
+
+              <div class="quiz-q">
+                <p class="q-text">1. What does marking a function <code>async</code> guarantee?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> It runs on a separate thread.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> It always returns a promise, wrapping any returned value.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> Every call is deferred until the next tick.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> It can only be called with <code>await</code>.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. <code>async</code> wraps the return value in a promise. There is still only one thread — <code>async</code> is syntax over promises, not concurrency.</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">2. Given a script with sync code, a <code>Promise.then</code>, and a <code>setTimeout(…, 0)</code>, what is the order?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> sync → setTimeout → promise</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> sync → promise → setTimeout</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> promise → sync → setTimeout</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> It depends on the timer's delay value.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. Synchronous code finishes first, then the microtask queue drains completely, and only then does the loop take the next macrotask.</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">3. You need to fetch 10 independent users. Which is correct and fastest?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> <code>for (const id of ids) { await fetchUser(id); }</code></button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> <code>await Promise.all(ids.map(fetchUser))</code></button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> <code>ids.forEach(async (id) =&gt; await fetchUser(id))</code></button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> <code>await Promise.race(ids.map(fetchUser))</code></button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. <code>Promise.all</code> starts every fetch at once and waits for all of them. <strong>A</strong> is correct but 10× slower. <strong>C</strong> is a common bug — <code>forEach</code> ignores the returned promises, so nothing is awaited. <strong>D</strong> resolves after the first one and discards the rest.</p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </article>
+
+      <div class="lesson-outro">
+        <h2>What you can do now</h2>
+        <p style="color:var(--text-soft);font-size:15.5px;">
+          You can read any async code and know what runs when. You can convert callbacks to
+          promises, pick the right combinator, spot a serialised <code>await</code> loop from a
+          mile away, and explain why <code>setTimeout(fn, 0)</code> loses to a promise. That's the
+          whole foundation of real-world JavaScript.
+        </p>
+
+        <div class="pager">
+          <a href="01-module-fundamentals.html">
+            <span class="p-dir">&larr; Previous</span>
+            <span class="p-title">Category 1 — Module Fundamentals &amp; CommonJS</span>
+          </a>
+          <a class="next" href="03-objects-prototypes-classes.html">
+            <span class="p-dir">Next &rarr;</span>
+            <span class="p-title">Category 3 — Objects, Prototypes &amp; Classes</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</main>
+
+<button class="to-top" type="button" aria-label="Back to top">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>&copy; <span data-year>2026</span> Master the JavaScript &middot; Category 02 of the course.</span>
+    <nav class="footer-links" aria-label="Course index">
+      <a href="../index.html">Home</a>
+      <a href="01-module-fundamentals.html">01 Modules</a>
+      <a href="02-async-and-the-event-loop.html">02 Async</a>
+      <a href="03-objects-prototypes-classes.html">03 Objects</a>
+      <a href="04-modern-tooling-and-esm.html">04 Tooling</a>
+      <a href="05-advanced-patterns.html">05 Advanced</a>
+      <a href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  if (window.hljs) { hljs.highlightAll(); }
+</script>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/lesson.js"></script>
+<script src="../assets/js/playground.js"></script>
+</body>
+</html>

@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category 4 — Modern Tooling &amp; ES Modules | Master the JavaScript</title>
+<meta name="description" content="import/export, ESM vs CommonJS, package.json exports, npm dependency management, bundlers and testing — with a real ES module playground in your browser.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600;650;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/lesson.css">
+<link rel="stylesheet" href="../assets/css/playground.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="progress-rail"><div class="progress-bar"></div></div>
+
+<div class="bg-field" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <span>Master the JavaScript <span class="brand-sub">/ category 04</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#tracks">Tracks</a>
+      <a href="#playground">Playground</a>
+      <a class="is-active" href="04-modern-tooling-and-esm.html">Category 4</a>
+      <a class="nav-cta" href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">
+        GitHub
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="../index.html">Home</a>
+  <a href="#esm-syntax">01 &middot; ES module syntax</a>
+  <a href="#esm-vs-cjs">02 &middot; ESM vs CommonJS</a>
+  <a href="#package-json">03 &middot; package.json &amp; resolution</a>
+  <a href="#npm">04 &middot; npm &amp; dependencies</a>
+  <a href="#build">05 &middot; Bundlers, transpilers &amp; tests</a>
+  <a href="#typescript">06 &middot; TypeScript</a>
+  <a href="#testing">07 &middot; Testing in depth</a>
+  <a href="#debugging">08 &middot; Debugging &amp; performance</a>
+  <a href="#playground">Playground</a>
+  <a href="#checkpoint">Checkpoint quiz</a>
+</div>
+
+<main id="main">
+<div class="layer">
+  <div class="lesson-shell">
+
+    <aside class="lesson-aside">
+      <div class="aside-label">On this page</div>
+      <ul class="toc">
+        <li><a href="#esm-syntax">ES module syntax</a></li>
+        <li class="toc-sub"><a href="#live-bindings">Live bindings</a></li>
+        <li class="toc-sub"><a href="#dynamic-import">Dynamic import()</a></li>
+        <li><a href="#esm-vs-cjs">ESM vs CommonJS</a></li>
+        <li><a href="#package-json">package.json &amp; resolution</a></li>
+        <li><a href="#npm">npm &amp; dependencies</a></li>
+        <li><a href="#build">Bundlers &amp; testing</a></li>
+        <li><a href="#typescript">TypeScript</a></li>
+        <li><a href="#testing">Testing in depth</a></li>
+        <li><a href="#debugging">Debugging &amp; performance</a></li>
+        <li><a href="#playground">Playground</a></li>
+        <li><a href="#checkpoint">Checkpoint</a></li>
+      </ul>
+
+      <div class="aside-progress">
+        <div class="pct">0% read</div>
+        <div class="bar"><i></i></div>
+      </div>
+    </aside>
+
+    <div>
+
+      <div class="lesson-head">
+        <div class="crumbs">
+          <a href="../index.html">Home</a>
+          <span>/</span>
+          <span>Category 04</span>
+          <span>/</span>
+          <span>Modern Tooling &amp; ES Modules</span>
+        </div>
+        <h1>Modern Tooling &amp; ES Modules</h1>
+        <p class="sub">
+          The module system that replaced <code>require()</code>, how Node resolves packages now,
+          what every field in <code>package.json</code> is for, and the build step that turns all of
+          it into something a browser can load.
+        </p>
+        <div class="lesson-facts">
+          <span><i></i> 8 sections</span>
+          <span><i></i> 40+ runnable examples</span>
+          <span><i></i> ~60 min read</span>
+          <span><i></i> Level: intermediate &rarr; advanced</span>
+        </div>
+      </div>
+
+      <article class="prose">
+
+        <!-- ========================================================== 01 -->
+        <section id="esm-syntax">
+          <h2><span class="h2-num">01 — Section</span>ES Module Syntax</h2>
+
+          <p>
+            <strong>ES modules are the official module system of JavaScript</strong>, standardised in
+            the language itself rather than invented by Node. They use <code>import</code> and
+            <code>export</code> instead of <code>require</code> and
+            <code>module.exports</code>.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">math.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Named exports — as many as you like, names are fixed
+export const PI = 3.14159;
+
+export function add(a, b) {
+  return a + b;
+}
+
+// Default export — exactly one per module, name chosen by the importer
+export default function multiply(a, b) {
+  return a * b;
+}</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">main.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Default first, then named — order is a convention, not a rule
+import multiply, { PI, add } from './math.js';
+
+// Rename on import
+import { add as sum } from './math.js';
+
+// Or take the whole namespace
+import * as math from './math.js';
+
+console.log(add(2, 3));       // 5
+console.log(sum(2, 3));       // 5 — same function, different local name
+console.log(math.PI);         // 3.14159
+console.log(multiply(2, 3));  // 6</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Default vs named — the difference that bites</div>
+              <p>
+                A default export has no name of its own, so the importer picks one:
+                <code>import anything from './math.js'</code> works. Named exports must match
+                exactly — <code>import { pi } from './math.js'</code> is an error because the export
+                is <code>PI</code>. Most teams prefer named exports for exactly this reason: rename
+                detection and autocomplete actually work.
+              </p>
+            </div>
+          </div>
+
+          <h3>Re-exporting</h3>
+
+          <p>
+            A barrel file gathers several modules behind one entry point. This is how most packages
+            present a clean public surface.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">index.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">export { add, multiply } from './math.js';
+export { default as formatPrice } from './format.js';
+export * from './constants.js';</code></pre>
+          </div>
+
+          <h3 id="live-bindings">Live bindings, not copies</h3>
+
+          <p>
+            This is the deepest difference from CommonJS. <strong>An imported binding is a live
+            view onto the exporting module, not a snapshot.</strong> If the exporter changes the
+            value, importers see the change.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">counter.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">export let count = 0;
+
+export function increment() {
+  count += 1;
+}</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">main.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import { count, increment } from './counter.js';
+
+console.log(count);   // 0
+increment();
+console.log(count);   // 1  — NOT a copy. The binding is live.</code></pre>
+          </div>
+
+          <p>
+            You can't assign to an imported binding though — the view is read-only from the outside.
+            <code>count = 5</code> in <code>main.js</code> is a runtime error.
+          </p>
+
+          <h3 id="dynamic-import">Dynamic <code>import()</code></h3>
+
+          <p>
+            Static imports must be at the top level and are resolved before any code runs. When you
+            need to load something conditionally, or on demand, use the function form — it returns a
+            promise.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">lazy.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">async function openEditor() {
+  // Only downloaded and evaluated when this line runs
+  const { Editor } = await import('./editor.js');
+  return new Editor();
+}
+
+// Conditional loading
+if (user.isAdmin) {
+  const admin = await import('./admin-panel.js');
+  admin.mount();
+}</code></pre>
+          </div>
+
+          <p>
+            This is how bundlers split code. Each <code>import()</code> becomes a separate chunk
+            fetched only when needed — which is why your app's first load doesn't include the admin
+            panel.
+          </p>
+
+          <ul class="keypoints">
+            <li><code>export</code> names are fixed; only default exports can be renamed freely on import.</li>
+            <li>Imported bindings are live views, not copied values.</li>
+            <li>Static imports are hoisted and resolved before any code runs.</li>
+            <li><code>import()</code> is dynamic, returns a promise, and enables code splitting.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 02 -->
+        <section id="esm-vs-cjs">
+          <h2><span class="h2-num">02 — Section</span>ESM vs CommonJS</h2>
+
+          <p>
+            Both systems solve the same problem, and they coexist in the ecosystem. But they are
+            different in ways that matter — especially when you're debugging why something is
+            <code>undefined</code>.
+          </p>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th></th><th>CommonJS</th><th>ES Modules</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Syntax</td><td><code>require</code> / <code>module.exports</code></td><td><code>import</code> / <code>export</code></td></tr>
+                <tr><td>Resolution</td><td>At runtime, when the call executes</td><td>Statically, before execution</td></tr>
+                <tr><td>Structure</td><td>Dynamic — paths can be built at runtime</td><td>Static — analysable without running</td></tr>
+                <tr><td>Tree shaking</td><td>Very hard</td><td>Built in</td></tr>
+                <tr><td>Top-level <code>await</code></td><td>Not allowed</td><td>Supported</td></tr>
+                <tr><td><code>__dirname</code></td><td>Available</td><td>Not defined</td></tr>
+                <tr><td>Top-level <code>this</code></td><td><code>module.exports</code></td><td><code>undefined</code></td></tr>
+                <tr><td>Bindings</td><td>Copied values</td><td>Live views</td></tr>
+                <tr><td>Strict mode</td><td>Opt in</td><td>Always on</td></tr>
+                <tr><td>File extensions</td><td><code>.js</code> / <code>.cjs</code></td><td><code>.mjs</code>, or <code>.js</code> with <code>"type": "module"</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Why "static" matters so much</div>
+              <p>
+                Because ESM imports must be literal strings at the top of the file, a bundler can
+                build the entire dependency graph <em>without executing anything</em>. That's what
+                makes tree shaking — dropping code you never use — possible. With
+                <code>require(someVariable)</code>, the bundler simply cannot know what will load.
+              </p>
+            </div>
+          </div>
+
+          <h3>Replacing <code>__dirname</code></h3>
+
+          <p>
+            In ESM there is no <code>__dirname</code> or <code>__filename</code>. You derive them
+            from <code>import.meta.url</code>, which is a real <code>file://</code> URL:
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">paths.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+console.log(join(__dirname, 'data', 'users.json'));
+
+// Node 20.11+ gives you the directory directly:
+// console.log(import.meta.dirname);</code></pre>
+          </div>
+
+          <h3>Mixing the two systems</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">interop.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// ESM importing a CommonJS package:
+// `default` is the whole module.exports object
+import express from 'express';
+import { readFileSync } from 'node:fs';     // Node's built-ins expose named exports
+
+// Named imports from CJS often work, because Node statically
+// detects `exports.foo = ...` patterns — but it is not guaranteed.
+
+// Going the other way, Node 22+ can require() an ES module
+// (as long as it has no top-level await):
+const esmModule = require('./modern.mjs');</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li>CommonJS resolves at runtime; ESM resolves statically before anything runs.</li>
+            <li>ESM always runs in strict mode and gives you top-level <code>await</code>.</li>
+            <li><code>__dirname</code> doesn't exist in ESM — derive it from <code>import.meta.url</code>.</li>
+            <li>Interop works, but the mismatch between live bindings and copied values is a real source of bugs.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 03 -->
+        <section id="package-json">
+          <h2><span class="h2-num">03 — Section</span>package.json &amp; Module Resolution</h2>
+
+          <p>
+            <strong>Node decides whether a <code>.js</code> file is a module or a script by looking
+            at the nearest <code>package.json</code>.</strong> The <code>type</code> field is the
+            switch.
+          </p>
+
+          <ul>
+            <li><code>"type": "module"</code> — every <code>.js</code> is an ES module</li>
+            <li><code>"type": "commonjs"</code> (or absent) — every <code>.js</code> is CommonJS</li>
+            <li><code>.mjs</code> — always ESM, regardless of <code>type</code></li>
+            <li><code>.cjs</code> — always CommonJS, regardless of <code>type</code></li>
+          </ul>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">package.json</span>
+              <span class="code-lang">json</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-json">{
+  "name": "my-app",
+  "version": "2.0.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./helpers": "./dist/helpers.js",
+    "./package.json": "./package.json"
+  },
+  "files": ["dist"],
+  "engines": { "node": ">=20" }
+}</code></pre>
+          </div>
+
+          <h4>What the entry-point fields mean</h4>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Field</th><th>Read by</th><th>Purpose</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>main</code></td><td>Node (legacy)</td><td>The original single entry point, still the fallback</td></tr>
+                <tr><td><code>module</code></td><td>Bundlers</td><td>A non-standard hint pointing at the ESM build</td></tr>
+                <tr><td><code>exports</code></td><td>Node &amp; bundlers</td><td>The modern, authoritative map — and a <strong>wall</strong></td></tr>
+                <tr><td><code>types</code></td><td>TypeScript</td><td>Where the type declarations live</td></tr>
+                <tr><td><code>files</code></td><td>npm</td><td>Allow-list of what actually gets published</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title"><code>exports</code> is a wall, not a suggestion</div>
+              <p>
+                The moment a package defines <code>exports</code>, deep imports into its internals
+                stop working. <code>require('my-app/dist/utils/secret.js')</code> fails even though
+                the file exists, unless it's listed. That's deliberate — it lets library authors
+                refactor freely. If you maintain a package and add <code>exports</code>, it's a
+                breaking change.
+              </p>
+            </div>
+          </div>
+
+          <p>
+            Conditional keys are checked <strong>in the order they appear</strong>, so
+            <code>types</code> must come first, and <code>import</code>/<code>require</code> let one
+            package serve both module systems from a single name.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">how a bare import resolves</span>
+              <span class="code-lang">text</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-plaintext">import 'my-app'   from /src/app.js
+
+1. Is it a Node built-in?          (node:fs, node:path, …)   -> use it
+2. Is it a relative path?          ('./x', '../y')           -> resolve from the file
+3. Walk up looking for node_modules/my-app
+4. Read my-app/package.json
+5. If "exports" exists, use it     -> conditions: import / require / default
+6. Otherwise fall back to "main"
+7. Not found anywhere             -> ERR_MODULE_NOT_FOUND</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li><code>"type"</code> in the nearest <code>package.json</code> decides how <code>.js</code> is treated.</li>
+            <li><code>.mjs</code> and <code>.cjs</code> always override <code>type</code>.</li>
+            <li><code>exports</code> replaces <code>main</code> as the authoritative entry map and blocks deep imports.</li>
+            <li>Condition order matters — <code>types</code> first, then <code>import</code>/<code>require</code>.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 04 -->
+        <section id="npm">
+          <h2><span class="h2-num">04 — Section</span>npm &amp; Dependencies</h2>
+
+          <p>
+            <code>package.json</code> declares what you want; <code>package-lock.json</code> records
+            exactly what you got. Both matter, for different reasons.
+          </p>
+
+          <h4>The four dependency types</h4>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Field</th><th>Installed when</th><th>Belongs here</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>dependencies</code></td><td>Always, including in production</td><td>Code your app needs at runtime</td></tr>
+                <tr><td><code>devDependencies</code></td><td>Development installs only</td><td>Bundlers, test runners, linters, type packages</td></tr>
+                <tr><td><code>peerDependencies</code></td><td>Not installed — you must provide it</td><td>Plugins: "I work with React 18, but you bring React"</td></tr>
+                <tr><td><code>optionalDependencies</code></td><td>Best effort; install failure is not fatal</td><td>Platform-specific native addons</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">package.json</span>
+              <span class="code-lang">json</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-json">{
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "vitest": "^2.0.0",
+    "typescript": "^5.5.0"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  }
+}</code></pre>
+          </div>
+
+          <h4>Version ranges</h4>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Range</th><th>Means</th><th>Allows</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>^1.2.3</code></td><td><code>&gt;=1.2.3 &lt;2.0.0</code></td><td>minor and patch updates</td></tr>
+                <tr><td><code>~1.2.3</code></td><td><code>&gt;=1.2.3 &lt;1.3.0</code></td><td>patch updates only</td></tr>
+                <tr><td><code>1.2.3</code></td><td>exactly that version</td><td>nothing</td></tr>
+                <tr><td><code>1.x</code></td><td><code>&gt;=1.0.0 &lt;2.0.0</code></td><td>any minor or patch</td></tr>
+                <tr><td><code>&gt;=1.2.3 &lt;2.0.0</code></td><td>explicit range</td><td>whatever you wrote</td></tr>
+                <tr><td><code>*</code> or <code>latest</code></td><td>anything</td><td>everything — avoid</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Semver is a promise, not a guarantee</div>
+              <p>
+                <code>^</code> trusts the package author to bump the major version when they break
+                something. Most do; some don't. This is exactly why
+                <code>package-lock.json</code> exists — it pins the resolved tree so that
+                <code>1.2.3</code> today is the same <code>1.2.3</code> on CI tomorrow.
+              </p>
+            </div>
+          </div>
+
+          <h4>The commands you actually use</h4>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">terminal</span>
+              <span class="code-lang">shell</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-bash">npm install express              # add to dependencies
+npm install --save-dev vitest    # add to devDependencies
+npm install                      # install per package.json, update the lockfile
+npm ci                           # clean install from the lockfile — use this in CI
+npm outdated                     # what's behind
+npm update                       # move within the allowed ranges
+npm audit                        # known vulnerabilities
+npm audit fix                    # patch what can be patched automatically
+npx cowsay hello                 # run a package binary without installing it
+npm run build                    # run a script from "scripts"</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title"><code>npm install</code> vs <code>npm ci</code></div>
+              <p>
+                <code>npm install</code> may update the lockfile. <code>npm ci</code> deletes
+                <code>node_modules</code> and installs strictly from the lockfile — it never
+                modifies it, and it fails if <code>package.json</code> and the lockfile disagree.
+                That determinism is why CI should always use <code>npm ci</code>.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>Runtime code goes in <code>dependencies</code>; tooling goes in <code>devDependencies</code>.</li>
+            <li><code>peerDependencies</code> declares compatibility without bundling a copy.</li>
+            <li><code>^</code> allows minor updates, <code>~</code> only patches.</li>
+            <li>Commit the lockfile; use <code>npm ci</code> in CI for reproducible installs.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 05 -->
+        <section id="build">
+          <h2><span class="h2-num">05 — Section</span>Bundlers, Transpilers &amp; Testing</h2>
+
+          <p>
+            Browsers understand ES modules natively now — so why does almost every project still
+            have a build step? Because a build step does four jobs that the platform doesn't do for
+            you.
+          </p>
+
+          <ol>
+            <li><strong>Bundling</strong> — hundreds of module requests become a handful of files.</li>
+            <li><strong>Transpiling</strong> — TypeScript, JSX and brand-new syntax become widely supported JavaScript.</li>
+            <li><strong>Tree shaking</strong> — exports nothing imports are removed from the output.</li>
+            <li><strong>Minifying</strong> — names shortened, whitespace stripped, output compressed.</li>
+          </ol>
+
+          <h4>The tools, and what each is for</h4>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Tool</th><th>Role</th><th>Reach for it when</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Vite</strong></td><td>Dev server + bundler</td><td>Almost any new web app — fastest default</td></tr>
+                <tr><td><strong>esbuild</strong></td><td>Bundler + minifier</td><td>Speed is the priority; underlying engine of Vite</td></tr>
+                <tr><td><strong>Rollup</strong></td><td>Library bundler</td><td>Publishing a package; best tree shaking</td></tr>
+                <tr><td><strong>webpack</strong></td><td>Bundler</td><td>Existing large projects with deep plugin needs</td></tr>
+                <tr><td><strong>TypeScript</strong></td><td>Type checker + transpiler</td><td>You want types in the codebase</td></tr>
+                <tr><td><strong>Babel</strong></td><td>Transpiler</td><td>Targeting old browsers, or custom syntax plugins</td></tr>
+                <tr><td><strong>ESLint</strong></td><td>Linter</td><td>Finding bugs and enforcing conventions</td></tr>
+                <tr><td><strong>Prettier</strong></td><td>Formatter</td><td>Ending every formatting argument forever</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">package.json — scripts</span>
+              <span class="code-lang">json</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-json">{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  }
+}</code></pre>
+          </div>
+
+          <p>
+            <code>tsc --noEmit</code> is worth calling out: it runs the type checker and produces
+            <em>no output files</em>. Your bundler handles the transpiling; this just tells you
+            whether the types are actually correct.
+          </p>
+
+          <h4>Testing, with no dependencies at all</h4>
+
+          <p>
+            Node ships a test runner now. For a lot of projects you don't need anything else.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">math.test.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import test from 'node:test';
+import assert from 'node:assert/strict';
+
+import { add } from './math.js';
+
+test('add sums two numbers', () =&gt; {
+  assert.equal(add(2, 3), 5);
+});
+
+test('add handles negatives', () =&gt; {
+  assert.equal(add(-2, -3), -5);
+});</code></pre>
+          </div>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">terminal</span>
+              <span class="code-lang">shell</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-bash">node --test
+# ✔ add sums two numbers (1.2ms)
+# ✔ add handles negatives (0.3ms)
+# tests 2
+# pass 2
+# fail 0</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Source maps</div>
+              <p>
+                Your browser runs minified, bundled code — which is unreadable and has different
+                line numbers. A <strong>source map</strong> tells DevTools how to map that back to
+                your original files, so breakpoints and stack traces still point at your code. Ship
+                them if you want production errors to be debuggable.
+              </p>
+            </div>
+          </div>
+
+          <p>
+            One last idea worth internalising: <strong>the build step is not the language.</strong>
+            Everything in Categories 1–3 runs exactly as written in Node, and increasingly in the
+            browser too. Tooling exists to optimise delivery — not to make the code valid.
+          </p>
+
+          <ul class="keypoints">
+            <li>Bundling, transpiling, tree shaking and minifying are the four jobs of a build.</li>
+            <li>Vite is the pragmatic default; esbuild powers it; Rollup is best for libraries.</li>
+            <li><code>tsc --noEmit</code> type-checks without emitting files.</li>
+            <li><code>node --test</code> gives you a real test runner with zero dependencies.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 06 -->
+        <section id="typescript">
+          <h2><span class="h2-num">06 — Section</span>TypeScript for JavaScript Developers</h2>
+
+          <p>
+            <strong>TypeScript is JavaScript with a compile-time type checker bolted on.</strong>
+            Nothing it adds survives to runtime — every annotation is erased. What you get is
+            mistakes caught before you run anything, and editor autocomplete that actually knows
+            your shapes.
+          </p>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Adopt it gradually</div>
+              <p>
+                You don't rewrite anything. Add <code>checkJs: true</code> to <code>tsconfig.json</code>
+                and TypeScript will type-check your existing <code>.js</code> files using JSDoc
+                comments. Rename files to <code>.ts</code> one at a time. <code>strict: false</code>
+                to begin, then turn on <code>strict</code> once the errors are gone.
+              </p>
+            </div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">basics.ts</span>
+              <span class="code-lang">typescript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-typescript">// Annotations on parameters and return values
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+// Interfaces describe object shapes
+interface User {
+  id: number;
+  name: string;
+  email?: string;              // optional
+  readonly createdAt: Date;    // cannot be reassigned after construction
+}
+
+// Type aliases are better for unions and primitives
+type Status = 'idle' | 'loading' | 'success' | 'error';
+type Id = string | number;
+
+// `unknown` is the safe `any` — you must narrow before using it
+function parse(json: string): unknown {
+  return JSON.parse(json);
+}</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title"><code>any</code> disables the checker</div>
+              <p>
+                One <code>any</code> spreads: everything it touches becomes unchecked, and the
+                errors you were paying for disappear. Use <code>unknown</code> for values you
+                haven't validated yet — it forces you to prove the type before using it. Set
+                <code>noImplicitAny</code> so you can't do it by accident.
+              </p>
+            </div>
+          </div>
+
+          <h3>Generics — one implementation, many types</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">generics.ts</span>
+              <span class="code-lang">typescript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-typescript">function first&lt;T&gt;(items: T[]): T | undefined {
+  return items[0];
+}
+
+first([1, 2, 3]);        // number | undefined
+first(['a', 'b']);       // string | undefined
+
+// Constrained: K must be a real key of T
+function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const user = { name: 'Alice', age: 30 };
+getProperty(user, 'name');   // string
+// getProperty(user, 'nope'); // Error — not a key of user
+
+// Async generic helper
+async function fetchJson&lt;T&gt;(url: string): Promise&lt;T&gt; {
+  const response = await fetch(url);
+  return response.json() as Promise&lt;T&gt;;
+}
+
+const user2 = await fetchJson&lt;User&gt;('/api/user/1');</code></pre>
+          </div>
+
+          <h3>Narrowing — teaching the checker what you know</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">narrowing.ts</span>
+              <span class="code-lang">typescript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-typescript">// typeof / instanceof / in all narrow the type
+function format(value: string | number | Date) {
+  if (typeof value === 'number') return value.toFixed(2);
+  if (value instanceof Date) return value.toISOString();
+  return value.trim();
+}
+
+// A discriminated union is the most useful pattern in TypeScript —
+// the `status` field tells the compiler which shape you have.
+type Result =
+  | { status: 'ok'; data: string[] }
+  | { status: 'error'; message: string }
+  | { status: 'loading' };
+
+function render(result: Result): string {
+  switch (result.status) {
+    case 'ok':
+      return result.data.join(', ');       // `data` exists here
+    case 'error':
+      return `Error: ${result.message}`;   // `message` exists here
+    case 'loading':
+      return 'Loading…';
+  }
+}</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">utility-types.ts</span>
+              <span class="code-lang">typescript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-typescript">interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+type Draft       = Partial&lt;User&gt;;                    // every field optional
+type Identity    = Pick&lt;User, 'id' | 'name'&gt;;        // just these two
+type WithoutId   = Omit&lt;User, 'id'&gt;;                 // everything but id
+type Directory   = Record&lt;string, User&gt;;             // a lookup table
+type UserFactory = () =&gt; User;
+type MadeUser    = ReturnType&lt;UserFactory&gt;;          // User
+
+// Compose them into real function signatures
+function createUser(input: Omit&lt;User, 'id'&gt;): User {
+  return { id: Date.now(), ...input };
+}
+function updateUser(id: number, patch: Partial&lt;User&gt;): User {
+  return { ...findUser(id), ...patch };
+}</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">tsconfig.json</span>
+              <span class="code-lang">json</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-json">{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts"]
+}</code></pre>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Option</th><th>What it gives you</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>strict</code></td><td>Turns on the whole family — <code>noImplicitAny</code>, <code>strictNullChecks</code>, <code>strictFunctionTypes</code>. The single most valuable flag.</td></tr>
+                <tr><td><code>noUncheckedIndexedAccess</code></td><td><code>arr[0]</code> becomes <code>T | undefined</code>, because it genuinely can be missing.</td></tr>
+                <tr><td><code>verbatimModuleSyntax</code></td><td>Forces <code>import type</code> for type-only imports, so your ESM output is correct.</td></tr>
+                <tr><td><code>noEmit</code></td><td>Type-check only — your bundler does the transpiling.</td></tr>
+                <tr><td><code>skipLibCheck</code></td><td>Skips checking <code>.d.ts</code> files in dependencies. Faster, and avoids other people's errors.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Types are erased — verify input at the boundary</div>
+              <p>
+                A type annotation is a promise <em>you</em> make, not something enforced at runtime.
+                <code>fetchJson&lt;User&gt;(url)</code> will happily hand you a number if the API
+                returns one. Types are compile-time only; validate real external data with a schema
+                library (Zod, Valibot) or a hand-written guard.
+              </p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>TypeScript is erased at runtime — it catches errors before you run, nothing more.</li>
+            <li><code>unknown</code> over <code>any</code>; <code>strict</code> is the flag that matters.</li>
+            <li>Generics make one implementation work across types without losing information.</li>
+            <li>Discriminated unions plus narrowing cover most real-world modelling.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 07 -->
+        <section id="testing">
+          <h2><span class="h2-num">07 — Section</span>Testing in Depth</h2>
+
+          <p>
+            A test is not there to prove your code works today. It's there so you can change the
+            code next month and <em>find out immediately</em> when you break something.
+          </p>
+
+          <p>
+            Node now ships a test runner, so you need nothing installed to start.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">math.test.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import test from 'node:test';
+import assert from 'node:assert/strict';
+
+import { add } from './math.js';
+
+// Arrange / Act / Assert — three blocks, every time
+test('add sums two numbers', () =&gt; {
+  const a = 2;                    // arrange
+  const b = 3;
+
+  const result = add(a, b);       // act
+
+  assert.equal(result, 5);        // assert
+});</code></pre>
+          </div>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">terminal</span>
+              <span class="code-lang">shell</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-bash">node --test
+# ✔ add sums two numbers (1.4ms)
+# tests 1
+# pass 1
+# fail 0</code></pre>
+          </div>
+
+          <h3>Table-driven tests beat copy-paste</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">table.test.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const cases = [
+  { input: [2, 3],        expected: 5,   why: 'positive numbers' },
+  { input: [-2, -3],      expected: -5,  why: 'negative numbers' },
+  { input: [0, 0],        expected: 0,   why: 'zeros' },
+  { input: [1.5, 2.25],   expected: 3.75, why: 'decimals' }
+];
+
+for (const { input, expected, why } of cases) {
+  test(`add handles ${why}`, () =&gt; {
+    assert.equal(add(...input), expected);
+  });
+}
+
+// vitest has it.each built in
+describe('add', () =&gt; {
+  it.each([
+    [2, 3, 5],
+    [-2, -3, -5]
+  ])('add(%i, %i) === %i', (a, b, expected) =&gt; {
+    expect(add(a, b)).toBe(expected);
+  });
+});</code></pre>
+          </div>
+
+          <h3>Async, errors and fake timers</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">retry.test.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { retry } from './retry.js';
+
+describe('retry', () =&gt; {
+  beforeEach(() =&gt; vi.useFakeTimers());
+  afterEach(() =&gt; vi.useRealTimers());
+
+  it('retries a failing call and eventually succeeds', async () =&gt; {
+    const fn = vi.fn()
+      .mockRejectedValueOnce(new Error('network'))
+      .mockResolvedValueOnce('ok');
+
+    const promise = retry(fn, { attempts: 3, base: 100 });
+
+    await vi.advanceTimersByTimeAsync(500);   // skip the backoff instantly
+
+    await expect(promise).resolves.toBe('ok');
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it('rejects with the last error once attempts are exhausted', async () =&gt; {
+    const fn = vi.fn().mockRejectedValue(new Error('down'));
+    const promise = retry(fn, { attempts: 2, base: 1 });
+
+    await vi.advanceTimersByTimeAsync(100);
+
+    await expect(promise).rejects.toThrow('down');
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+});</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Fake timers and unhandled rejections</div>
+              <p>
+                With fake timers, a rejected promise can sit unhandled while the microtask queue
+                never advances — Node prints <code>UnhandledPromiseRejection</code> and some runners
+                fail the suite. Attach your assertion (<code>await expect(promise).rejects…</code>)
+                <em>before</em> advancing timers, as above.
+              </p>
+            </div>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Test behaviour, not implementation</div>
+              <p>
+                A test that asserts "this private method was called twice" breaks the moment you
+                refactor, without anything actually being wrong. Test the observable outcome — the
+                return value, the emitted event, the written file. If a refactor breaks a test but
+                the feature still works, that test was measuring the wrong thing.
+              </p>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Worth testing</th><th>Not worth testing</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Boundary values (0, -1, empty, max)</td><td>That a getter returns a field</td></tr>
+                <tr><td>Error paths and what's thrown</td><td>Generated code or library internals</td></tr>
+                <tr><td>Pure functions with tricky logic</td><td>Exact console output strings</td></tr>
+                <tr><td>Regression cases — every bug you fix</td><td>That a mock was called (usually)</td></tr>
+                <tr><td>Public API contracts</td><td>Private implementation details</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ul class="keypoints">
+            <li><code>node --test</code> gives you a real runner with zero dependencies.</li>
+            <li>Table-driven tests cover many cases without copy-paste.</li>
+            <li>Fake timers let you test retries and timeouts without waiting.</li>
+            <li>Assert on behaviour, not on how it was implemented.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 08 -->
+        <section id="debugging">
+          <h2><span class="h2-num">08 — Section</span>Debugging, Performance &amp; CI</h2>
+
+          <p>
+            Guessing at performance is how you "optimise" the wrong thing and make the code worse.
+            Measure first — everything here is about getting a number.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">measure.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.time('render');
+renderDashboard();
+console.timeEnd('render');       // render: 42.3ms
+
+const start = performance.now();
+await heavyWork();
+console.log(`heavyWork took ${(performance.now() - start).toFixed(1)}ms`);
+
+// Structured output beats a wall of console.log
+console.table([
+  { name: 'alice', requests: 120, errors: 2 },
+  { name: 'bob',   requests: 88,  errors: 0 }
+]);
+
+console.group('request');
+console.log('url', url);
+console.log('status', status);
+console.groupEnd();
+
+// Node-only: label memory
+console.log(process.memoryUsage().heapUsed / 1024 / 1024, 'MB heap');</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">instrumentation.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// Detect long tasks that block the main thread
+if (typeof PerformanceObserver !== 'undefined') {
+  new PerformanceObserver((list) =&gt; {
+    for (const entry of list.getEntries()) {
+      if (entry.duration &gt; 50) {
+        console.warn(`Long task: ${entry.name} took ${entry.duration.toFixed(0)}ms`);
+      }
+    }
+  }).observe({ entryTypes: ['longtask'] });
+}
+
+// In Node, use the inspector instead of printf
+//   node --inspect-brk ./index.js     then open chrome://inspect
+//   node --prof ./index.js            then: node --prof-process isolate-*.log</code></pre>
+          </div>
+
+          <h3>The four leaks you will actually hit</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">leaks.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// 1. Listeners that are never removed
+element.addEventListener('click', handler);
+// in your teardown path:
+element.removeEventListener('click', handler);
+
+// 2. Timers that never stop — they keep the closure, and the process, alive
+const id = setInterval(poll, 1000);
+clearInterval(id);
+
+// 3. Caches that grow without bound
+const cache = new Map();              // grows forever
+// fix: an LRU with a max size, or a WeakMap when the keys are objects
+
+// 4. Closures holding onto something enormous
+function attach(bigBuffer) {
+  // bigBuffer stays in memory for as long as this function does
+  return () =&gt; bigBuffer.length;
+}
+
+// Detached DOM: a removed node still referenced by JS is not collected.
+// In DevTools, take two heap snapshots and diff them — that's how you find it.</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Logpoints instead of breakpoints</div>
+              <p>
+                Right-click a line in DevTools and choose <strong>Add logpoint</strong>. It logs an
+                expression every time that line runs without pausing execution and without editing
+                source. For a loop running ten thousand times, it's the difference between a
+                five-second answer and a five-minute one.
+              </p>
+            </div>
+          </div>
+
+          <h3>Lock it down with CI</h3>
+
+          <p>
+            Everything above is worthless if it only runs on your machine. Make the pipeline refuse
+            broken code.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">.github/workflows/ci.yml</span>
+              <span class="code-lang">yaml</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-yaml">name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci          # reproducible install from the lockfile
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">.github/workflows/pages.yml — publish this site</span>
+              <span class="code-lang">yaml</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-yaml">name: Deploy course site
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - uses: actions/deploy-pages@v4</code></pre>
+          </div>
+
+          <p>
+            That second workflow is exactly how this site is published — it's a static folder, so
+            uploading the repository as the artifact is the whole deploy.
+          </p>
+
+          <ul class="keypoints">
+            <li>Measure with <code>performance.now</code>, <code>console.time</code> and the profiler — never guess.</li>
+            <li>Long tasks over 50ms are what make a UI feel frozen.</li>
+            <li>Leaks come from listeners, timers, unbounded caches and captured closures.</li>
+            <li>CI should run install, lint, typecheck, test and build on every push.</li>
+          </ul>
+        </section>
+
+        <!-- =================================================== PLAYGROUND -->
+        <section id="playground">
+          <h2><span class="h2-num">Playground</span>Real ES modules, in the page</h2>
+
+          <p>
+            This playground is not a simulation. Each file below becomes a genuine ES module loaded
+            by the browser's own module loader — which means <strong>live bindings and top-level
+            <code>await</code> genuinely work here</strong>.
+          </p>
+
+          <div class="playground" data-playground data-mode="esm" data-entry="main.js">
+            <div class="pg-bar">
+              <span class="pg-badge"><i></i> ES module sandbox</span>
+              <div class="pg-tabs">
+                <button class="pg-tab" type="button" data-file="main.js">main.js</button>
+                <button class="pg-tab" type="button" data-file="math.js">math.js</button>
+                <button class="pg-tab" type="button" data-file="format.js">format.js</button>
+              </div>
+              <div class="pg-actions">
+                <button class="pg-btn pg-clear" type="button">Clear</button>
+                <button class="pg-btn pg-reset" type="button">Reset</button>
+                <button class="pg-btn pg-btn-run pg-run" type="button">Run &#9654;</button>
+              </div>
+            </div>
+
+            <div class="pg-editors">
+              <div class="pg-editor is-active" data-name="main.js">
+                <textarea rows="16">// Named + default imports, in one statement
+import formatPrice, { add, PI } from './math.js';
+
+console.log('add:', add(2, 3));
+console.log('PI:', PI);
+console.log('formatted:', formatPrice(19.5));
+
+// Top-level await — ONLY possible in an ES module
+const response = await Promise.resolve({ status: 200, data: [1, 2, 3] });
+console.log('status:', response.status);
+console.log('items:', response.data.length);
+
+// Dynamic import returns a promise
+const extra = await import('./math.js');
+console.log('dynamic import:', typeof extra.subtract);</textarea>
+              </div>
+
+              <div class="pg-editor" data-name="math.js">
+                <textarea rows="16">export const PI = 3.14159;
+
+export function add(a, b) {
+  return a + b;
+}
+
+export function subtract(a, b) {
+  return a - b;
+}
+
+// One default export per module
+export default function formatPrice(amount) {
+  return 'EUR ' + amount.toFixed(2);
+}</textarea>
+              </div>
+
+              <div class="pg-editor" data-name="format.js">
+                <textarea rows="16">// A second module, kept small on purpose.
+// Note there is no `formatPrice` here — that lives in math.js.
+export const CURRENCY = "EUR";
+
+export function formatDate(date) {
+  return date.toISOString().split("T")[0];
+}
+
+// Try deleting this file, then run main.js and read the error.</textarea>
+              </div>
+            </div>
+
+            <div class="pg-out-wrap">
+              <div class="pg-out-label">console output</div>
+              <div class="pg-out"></div>
+            </div>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Things worth trying</div>
+              <p>
+                Add <code>console.log(PI)</code> to <code>format.js</code> — it fails, because
+                <code>PI</code> was never imported into that module. That's the live-binding system
+                working exactly as designed, and it's a mistake you'll make once in real life.
+              </p>
+            </div>
+          </div>
+
+          <div class="pg-meta">
+            <span>Real <code>import()</code>, real top-level <code>await</code>, no bundler.</span>
+            <span><code>Ctrl</code>+<code>Enter</code> runs.</span>
+          </div>
+        </section>
+
+        <!-- =================================================== CHECKPOINT -->
+        <section id="checkpoint">
+          <h2><span class="h2-num">Checkpoint</span>Test yourself</h2>
+
+          <p>Three questions. Click an answer to check it — the explanation appears underneath.</p>
+
+          <div class="quiz">
+            <div class="quiz-head">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              ES modules &amp; tooling checkpoint
+            </div>
+            <div class="quiz-body">
+
+              <div class="quiz-q">
+                <p class="q-text">1. What is the practical advantage of ESM imports being static?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> They run faster because they skip the file system.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> The whole dependency graph is knowable without executing code, which enables tree shaking.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> They can load modules from the network asynchronously.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> They let you build import paths from variables at runtime.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. Because specifiers are literal strings, a bundler can analyse the graph without running anything and drop the exports nobody imports. Note <strong>D</strong> is the opposite — dynamic paths are what CommonJS allows and ESM forbids (without <code>import()</code>).</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">2. A package sets <code>"type": "module"</code>. What happens to its <code>.js</code> files?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">A</span> They're treated as ES modules — <code>import</code>/<code>export</code> only.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">B</span> They're still CommonJS; only <code>.mjs</code> becomes a module.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> They're transpiled to CommonJS automatically on install.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> Nothing — <code>type</code> only affects TypeScript.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>A</strong>. <code>type</code> changes how the runtime interprets <code>.js</code>. <code>.cjs</code> still means CommonJS and <code>.mjs</code> still means ESM, regardless of the field.</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">3. What does <code>package-lock.json</code> give you that <code>package.json</code> does not?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> It makes installs faster by caching tarballs.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> The exact resolved version of every package, including transitive ones.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> Security patches applied automatically at install time.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> A list of licences for every dependency.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. <code>package.json</code> holds ranges like <code>^4.18.2</code>; the lockfile records the exact tree that was installed — which is why it belongs in version control and why CI uses <code>npm ci</code>.</p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </article>
+
+      <div class="lesson-outro">
+        <h2>What you can do now</h2>
+        <p style="color:var(--text-soft);font-size:15.5px;">
+          You can write ES modules properly, explain why they can be tree-shaken and CommonJS
+          can't, configure <code>exports</code> so a package works for both systems, keep
+          dependencies reproducible with a lockfile, and describe exactly what a build step is
+          doing to your code. That's the whole modern toolchain, without the cargo cult.
+        </p>
+
+        <div class="pager">
+          <a href="03-objects-prototypes-classes.html">
+            <span class="p-dir">&larr; Previous</span>
+            <span class="p-title">Category 3 — Objects, Prototypes &amp; Classes</span>
+          </a>
+          <a class="next" href="05-advanced-patterns.html">
+            <span class="p-dir">Next &rarr;</span>
+            <span class="p-title">Category 5 — Advanced Patterns from Real Projects</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</main>
+
+<button class="to-top" type="button" aria-label="Back to top">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>&copy; <span data-year>2026</span> Master the JavaScript &middot; Category 04 of the course.</span>
+    <nav class="footer-links" aria-label="Course index">
+      <a href="../index.html">Home</a>
+      <a href="01-module-fundamentals.html">01 Modules</a>
+      <a href="02-async-and-the-event-loop.html">02 Async</a>
+      <a href="03-objects-prototypes-classes.html">03 Objects</a>
+      <a href="04-modern-tooling-and-esm.html">04 Tooling</a>
+      <a href="05-advanced-patterns.html">05 Advanced</a>
+      <a href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  if (window.hljs) { hljs.highlightAll(); }
+</script>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/lesson.js"></script>
+<script src="../assets/js/playground.js"></script>
+</body>
+</html>

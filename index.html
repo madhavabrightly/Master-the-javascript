@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master the JavaScript — From Zero to Shipped</title>
+<meta name="description" content="A monochrome, example-driven JavaScript course you can run in the browser. Start with Module Fundamentals & CommonJS.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600;650;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/landing.css">
+<link rel="stylesheet" href="assets/css/playground.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="progress-rail"><div class="progress-bar"></div></div>
+
+<div class="bg-field" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <span>Master the JavaScript <span class="brand-sub">/ from zero to shipped</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#tracks">Tracks</a>
+      <a href="#playground">Playground</a>
+      <a href="#why">Why this course</a>
+      <a href="lessons/01-module-fundamentals.html">Category 1</a>
+      <a class="nav-cta" href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">
+        GitHub
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#tracks">Tracks</a>
+  <a href="#playground">Playground</a>
+  <a href="#why">Why this course</a>
+  <a href="lessons/01-module-fundamentals.html">Category 1 — Modules &amp; CommonJS</a>
+  <a href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">GitHub</a>
+</div>
+
+<main id="main">
+<div class="layer">
+
+  <!-- ============================================================ HERO -->
+  <section class="hero">
+    <div class="hero-aurora" aria-hidden="true"></div>
+
+    <div class="hero-inner">
+      <div>
+        <span class="eyebrow" data-reveal><span class="dot"></span> Course &middot; v1.0</span>
+
+        <h1 data-reveal data-delay="60">
+          <span class="line">Master the JavaScript</span>
+          <span class="line sheen">the way it actually ships.</span>
+        </h1>
+
+        <p class="type-line" data-reveal data-delay="120"><span data-type="require() and module.exports|the module cache|node_modules resolution|circular dependencies">require() and module.exports</span><span class="caret" aria-hidden="true"></span></p>
+
+        <p class="lede" data-reveal data-delay="160">
+          No fluff, no toy snippets. Every lesson is a runnable file, the real output it prints,
+          and the traps that bite people in production &mdash; and you can run every example
+          right here in the page. Starts with the module system: the foundation everything in
+          Node stands on.
+        </p>
+
+        <div class="hero-actions" data-reveal data-delay="220">
+          <a class="btn btn-primary" href="lessons/01-module-fundamentals.html">
+            Start Category 1
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#playground">Try the playground</a>
+        </div>
+
+        <div class="hero-meta" data-reveal data-delay="280">
+          <span><i></i> 4 categories</span>
+          <span><i></i> 100+ runnable examples</span>
+          <span><i></i> Runs in your browser</span>
+        </div>
+      </div>
+
+      <div data-reveal data-delay="180">
+        <div class="code-panel">
+          <div class="panel-bar">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="filename">math.js &rarr; main.js</span>
+          </div>
+          <div class="panel-body">
+<div><span class="ln">1</span>// math.js</div>
+<div><span class="ln">2</span></div>
+<div><span class="ln">3</span>function calculateSum(a, b) {</div>
+<div><span class="ln">4</span>  return a + b;</div>
+<div><span class="ln">5</span>}</div>
+<div><span class="ln">6</span></div>
+<div><span class="ln">7</span>module.exports = {</div>
+<div><span class="ln">8</span>  calculateSum: calculateSum</div>
+<div><span class="ln">9</span>};</div>
+<div><span class="ln">10</span></div>
+<div><span class="ln">11</span>// main.js</div>
+<div><span class="ln">12</span>const math = require('./math.js');</div>
+<div><span class="ln">13</span>console.log(math.calculateSum(5, 3)); <span style="color:#6b6b74">// 8</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>require()</span><span>&middot;</span><span>module.exports</span><span>&middot;</span>
+      <span>node_modules</span><span>&middot;</span><span>package.json</span><span>&middot;</span>
+      <span>CommonJS</span><span>&middot;</span><span>module caching</span><span>&middot;</span>
+      <span>__dirname</span><span>&middot;</span><span>__filename</span><span>&middot;</span>
+      <span>circular dependencies</span><span>&middot;</span><span>fs &middot; path &middot; events</span><span>&middot;</span>
+      <span>require()</span><span>&middot;</span><span>module.exports</span><span>&middot;</span>
+      <span>node_modules</span><span>&middot;</span><span>package.json</span><span>&middot;</span>
+      <span>CommonJS</span><span>&middot;</span><span>module caching</span><span>&middot;</span>
+      <span>__dirname</span><span>&middot;</span><span>__filename</span><span>&middot;</span>
+      <span>circular dependencies</span><span>&middot;</span><span>fs &middot; path &middot; events</span><span>&middot;</span>
+    </div>
+  </div>
+
+  <!-- =========================================================== STATS -->
+  <section class="section-tight" style="padding-top:56px;">
+    <div class="wrap">
+      <div class="stats" data-reveal>
+        <div class="stat">
+          <div class="num"><span data-count="5">5</span></div>
+          <div class="lbl">Categories, complete end to end</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span data-count="36">36</span></div>
+          <div class="lbl">Deep-dive sections across the course</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span data-count="200" data-suffix="+">200+</span></div>
+          <div class="lbl">Runnable examples with real output</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================== PLAYGROUND -->
+  <section class="section" id="playground">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow"><span class="dot"></span> Playground</span>
+        <h2>Run the code. No install, no server.</h2>
+        <p>
+          This page ships a miniature version of the Node module system. Two files, a real
+          <code>require()</code>, a real module cache &mdash; running entirely in your browser tab.
+          Edit anything and press <strong>Run</strong>, or hit <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.
+        </p>
+      </div>
+
+      <div data-reveal>
+        <div class="playground" data-playground data-entry="main.js">
+          <div class="pg-bar">
+            <span class="pg-badge"><i></i> CommonJS sandbox</span>
+            <div class="pg-tabs">
+              <button class="pg-tab" type="button" data-file="main.js">main.js</button>
+              <button class="pg-tab" type="button" data-file="math.js">math.js</button>
+              <button class="pg-tab" type="button" data-file="operations.js">operations.js</button>
+            </div>
+            <div class="pg-actions">
+              <button class="pg-btn pg-clear" type="button">Clear</button>
+              <button class="pg-btn pg-reset" type="button">Reset</button>
+              <button class="pg-btn pg-btn-run pg-run" type="button">Run &#9654;</button>
+            </div>
+          </div>
+
+          <div class="pg-editors">
+            <div class="pg-editor is-active" data-name="main.js">
+              <textarea rows="9">const math = require('./math.js');
+const operations = require('./operations.js');
+
+// Both files export calculateSum. Neither overwrites the other.
+console.log('math:      ', math.calculateSum(5, 3));
+console.log('operations:', operations.calculateSum(5, 3));
+console.log('greeting:  ', math.greet('Alice'));
+
+// require caches: the module body runs once.
+const again = require('./math.js');
+console.log('same object?', again === math);</textarea>
+            </div>
+
+            <div class="pg-editor" data-name="math.js">
+              <textarea rows="9">console.log('math.js is being loaded...');
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+module.exports = { calculateSum, greet };</textarea>
+            </div>
+
+            <div class="pg-editor" data-name="operations.js">
+              <textarea rows="9">// Same function name as math.js — and that is completely fine,
+// because this file lives in its own scope.
+function calculateSum(a, b) {
+  return (a + b) * 2;
+}
+
+module.exports = { calculateSum };</textarea>
+            </div>
+          </div>
+
+          <div class="pg-out-wrap">
+            <div class="pg-out-label">console output</div>
+            <div class="pg-out"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pg-meta" data-reveal>
+        <span><code>require()</code>, <code>module.exports</code> and the module cache all work here.</span>
+        <span><code>path</code> and <code>events</code> are fully implemented.</span>
+        <span><code>fs</code> and <code>http</code> tell you why they need real Node.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================== TRACKS -->
+  <section class="section" id="tracks">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow"><span class="dot"></span> Roadmap</span>
+        <h2>Five categories. One mental model.</h2>
+        <p>Four categories teach the language end to end — fundamentals, concurrency, the object system, then the toolchain. The fifth shows what it looks like when all of it is applied to real, working software.</p>
+      </div>
+
+      <div class="track-grid">
+
+        <a class="card track-card is-live" href="lessons/01-module-fundamentals.html" data-reveal>
+          <div class="idx">CATEGORY 01</div>
+          <h3>Module Fundamentals &amp; CommonJS</h3>
+          <p>Why modules exist, how <code style="font-family:var(--font-mono);font-size:12px">require()</code> and <code style="font-family:var(--font-mono);font-size:12px">module.exports</code> work, the module cache, circular dependencies, and the built-in modules you use every day.</p>
+          <div class="track-tags">
+            <span class="tag">require()</span>
+            <span class="tag">module.exports</span>
+            <span class="tag">node_modules</span>
+            <span class="tag">fs</span>
+            <span class="tag">path</span>
+          </div>
+          <div class="track-foot">
+            <span class="status-pill live">Available</span>
+            <span>Read lesson <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+
+        <a class="card track-card is-live" href="lessons/02-async-and-the-event-loop.html" data-reveal data-delay="70">
+          <div class="idx">CATEGORY 02</div>
+          <h3>Async JavaScript &amp; the Event Loop</h3>
+          <p>Callbacks, promises, async/await, the microtask queue, and why your <code style="font-family:var(--font-mono);font-size:12px">setTimeout(0)</code> runs after everything else.</p>
+          <div class="track-tags">
+            <span class="tag">promises</span>
+            <span class="tag">async/await</span>
+            <span class="tag">event loop</span>
+          </div>
+          <div class="track-foot">
+            <span class="status-pill live">Available</span>
+            <span>Read lesson <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+
+        <a class="card track-card is-live" href="lessons/03-objects-prototypes-classes.html" data-reveal data-delay="140">
+          <div class="idx">CATEGORY 03</div>
+          <h3>Objects, Prototypes &amp; Classes</h3>
+          <p>The prototype chain, <code style="font-family:var(--font-mono);font-size:12px">this</code> binding, class syntax as sugar, and inheritance that doesn't fight you.</p>
+          <div class="track-tags">
+            <span class="tag">prototypes</span>
+            <span class="tag">this</span>
+            <span class="tag">classes</span>
+          </div>
+          <div class="track-foot">
+            <span class="status-pill live">Available</span>
+            <span>Read lesson <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+
+        <a class="card track-card is-live" href="lessons/04-modern-tooling-and-esm.html" data-reveal data-delay="210">
+          <div class="idx">CATEGORY 04</div>
+          <h3>Modern Tooling &amp; ES Modules</h3>
+          <p><code style="font-family:var(--font-mono);font-size:12px">import</code>/<code style="font-family:var(--font-mono);font-size:12px">export</code>, bundlers, TypeScript warm-up, testing, and shipping to production.</p>
+          <div class="track-tags">
+            <span class="tag">ESM</span>
+            <span class="tag">testing</span>
+            <span class="tag">build</span>
+          </div>
+          <div class="track-foot">
+            <span class="status-pill live">Available</span>
+            <span>Read lesson <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+
+        <a class="card track-card is-live" href="lessons/05-advanced-patterns.html" data-reveal data-delay="280">
+          <div class="idx">CATEGORY 05</div>
+          <h3>Advanced Patterns from Real Projects</h3>
+          <p>Electron IPC and preload bridges, real-time audio state machines, canvas render loops, daemon architecture with circuit breakers, defensive security, and React patterns that scale.</p>
+          <div class="track-tags">
+            <span class="tag">Electron</span>
+            <span class="tag">canvas</span>
+            <span class="tag">state machines</span>
+            <span class="tag">security</span>
+          </div>
+          <div class="track-foot">
+            <span class="status-pill live">Available</span>
+            <span>Read lesson <span class="arrow">&rarr;</span></span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= WHY -->
+  <section class="section" id="why">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow"><span class="dot"></span> Why this course</span>
+        <h2>Built like documentation you actually want to read.</h2>
+      </div>
+
+      <div class="feature-grid" data-reveal>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4"/></svg>
+          </div>
+          <h3>Runnable in the page</h3>
+          <p>Every example has a live editor. Change it, break it, run it &mdash; and read the real output immediately.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"/><path d="m8 9 3 3-3 3"/></svg>
+          </div>
+          <h3>Output shown, always</h3>
+          <p>Terminal output is printed next to the code so you can predict it before you run anything.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>
+          </div>
+          <h3>Pitfalls covered</h3>
+          <p>Circular dependencies, stale caches, blocking reads — the mistakes everyone makes get their own callouts.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+          </div>
+          <h3>Beginner to advanced</h3>
+          <p>Plain-English explanations for newcomers, plus "under the hood" notes for people who want the real mechanics.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= CTA -->
+  <section class="section-tight" style="padding-bottom:40px;">
+    <div class="wrap">
+      <div class="cta-band" data-reveal>
+        <h2>Start where everything begins.</h2>
+        <p>Modules are the first thing you meet in any real Node codebase — and the first thing that confuses people. Category 1 makes them obvious, in five sections, with a playground on every page.</p>
+        <a class="btn btn-primary" href="lessons/01-module-fundamentals.html">
+          Open Category 1
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>&copy; <span data-year>2026</span> Master the JavaScript &middot; Built for students, shipped on GitHub Pages.</span>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="lessons/01-module-fundamentals.html">Category 1</a>
+      <a href="#playground">Playground</a>
+      <a href="#tracks">Roadmap</a>
+      <a href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/js/theme.js"></script>
+<script src="assets/js/playground.js"></script>
+</body>
+</html>

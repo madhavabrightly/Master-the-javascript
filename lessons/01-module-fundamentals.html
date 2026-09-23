@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category 1 — Module Fundamentals &amp; CommonJS | Master the JavaScript</title>
+<meta name="description" content="Why modules exist, how require() and module.exports work, module caching, circular dependencies, node_modules resolution, and the built-in fs, path, http and events modules. Every example runs in your browser.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600;650;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/lesson.css">
+<link rel="stylesheet" href="../assets/css/playground.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="progress-rail"><div class="progress-bar"></div></div>
+
+<div class="bg-field" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="spotlight" aria-hidden="true"></div>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <span>Master the JavaScript <span class="brand-sub">/ category 01</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../index.html#tracks">Tracks</a>
+      <a href="#playground">Playground</a>
+      <a class="is-active" href="01-module-fundamentals.html">Category 1</a>
+      <a class="nav-cta" href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">
+        GitHub
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="../index.html">Home</a>
+  <a href="#what-are-modules">01 &middot; What modules are</a>
+  <a href="#commonjs">02 &middot; CommonJS syntax</a>
+  <a href="#loading">03 &middot; Loading behaviour</a>
+  <a href="#node-internals">04 &middot; Node.js internals</a>
+  <a href="#builtins">05 &middot; Built-in modules</a>
+  <a href="#checkpoint">Checkpoint quiz</a>
+  <a href="#playground">Playground</a>
+</div>
+
+<main id="main">
+<div class="layer">
+  <div class="lesson-shell">
+
+    <!-- ======================================================== SIDEBAR -->
+    <aside class="lesson-aside">
+      <div class="aside-label">On this page</div>
+      <ul class="toc">
+        <li><a href="#what-are-modules">What modules are</a></li>
+        <li><a href="#commonjs">CommonJS syntax</a></li>
+        <li class="toc-sub"><a href="#module-exports">module.exports</a></li>
+        <li class="toc-sub"><a href="#require">require()</a></li>
+        <li><a href="#loading">Loading behaviour</a></li>
+        <li class="toc-sub"><a href="#sync-loading">Synchronous loading</a></li>
+        <li class="toc-sub"><a href="#caching">Module caching</a></li>
+        <li class="toc-sub"><a href="#circular">Circular dependencies</a></li>
+        <li><a href="#node-internals">Node.js internals</a></li>
+        <li class="toc-sub"><a href="#wrapper">The module wrapper</a></li>
+        <li class="toc-sub"><a href="#node-modules-folder">node_modules</a></li>
+        <li class="toc-sub"><a href="#package-json">package.json</a></li>
+        <li><a href="#builtins">Built-in modules</a></li>
+        <li class="toc-sub"><a href="#fs">fs</a></li>
+        <li class="toc-sub"><a href="#path">path</a></li>
+        <li class="toc-sub"><a href="#http-events">http &amp; events</a></li>
+        <li><a href="#playground">Playground</a></li>
+        <li><a href="#checkpoint">Checkpoint</a></li>
+      </ul>
+
+      <div class="aside-progress">
+        <div class="pct">0% read</div>
+        <div class="bar"><i></i></div>
+      </div>
+    </aside>
+
+    <!-- ========================================================= CONTENT -->
+    <div>
+
+      <div class="lesson-head">
+        <div class="crumbs">
+          <a href="../index.html">Home</a>
+          <span>/</span>
+          <span>Category 01</span>
+          <span>/</span>
+          <span>Module Fundamentals &amp; CommonJS</span>
+        </div>
+        <h1>Module Fundamentals &amp; CommonJS</h1>
+        <p class="sub">
+          Modules are the first thing you meet in any real Node codebase — and the first thing
+          that confuses people. By the end of this page you'll know exactly what
+          <code>require()</code> does, why the module cache exists, and how to survive a circular
+          dependency.
+        </p>
+        <div class="lesson-facts">
+          <span><i></i> 5 sections</span>
+          <span><i></i> 25+ runnable examples</span>
+          <span><i></i> ~35 min read</span>
+          <span><i></i> Level: beginner &rarr; intermediate</span>
+        </div>
+      </div>
+
+      <article class="prose">
+
+        <!-- ========================================================== 01 -->
+        <section id="what-are-modules">
+          <h2><span class="h2-num">01 — Section</span>What Modules Are</h2>
+
+          <p>
+            <strong>Modules are self-contained blocks of code that serve a single purpose and can be
+            reused across your application.</strong> They solve three critical problems in
+            JavaScript development.
+          </p>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">&#9733;</div>
+            <div class="c-body">
+              <div class="c-title">Brand new to this? Start here</div>
+              <p>
+                Picture a workshop full of drawers. A module is one drawer. Anything you put in
+                it stays put, and the other drawers can't knock it over &mdash; even if they hold
+                a tool with the same name. The only things anyone can take out are the items you
+                deliberately stuck a label on.
+              </p>
+              <p>
+                That single idea &mdash; <strong>private by default, public by choice</strong> &mdash; is
+                the entire reason modules exist. Everything below is just the mechanics of how
+                Node makes it work.
+              </p>
+            </div>
+          </div>
+
+          <p>
+            <strong>1. Code organization.</strong> Instead of writing thousands of lines in a single
+            file, modules let you split functionality into logical, manageable pieces. Each module
+            handles one concern — database operations, authentication, file utilities.
+          </p>
+
+          <p>
+            <strong>2. Encapsulation.</strong> Modules create a private scope. Variables and
+            functions defined inside a module don't leak into the global namespace. Only what you
+            explicitly export becomes accessible to other parts of your code.
+          </p>
+
+          <p>
+            <strong>3. Avoiding global scope pollution.</strong> In large applications without
+            modules, every function and variable you create gets added to the global object
+            (<code>window</code> in browsers, <code>global</code> in Node.js). This causes naming
+            conflicts, makes debugging harder, and increases the risk of accidental overwrites.
+          </p>
+
+          <h3>The problem: everything shares one namespace</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">file1.js &amp; file2.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">// file1.js
+function calculateSum(a, b) {
+  return a + b;
+}
+
+// file2.js
+function calculateSum(a, b) {
+  return (a + b) * 2;  // CONFLICT! Same function name
+}
+
+// Both functions exist globally, and the second overwrites the first</code></pre>
+          </div>
+
+          <h3>The fix: each module owns its own scope</h3>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">math.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function calculateSum(a, b) {
+  return a + b;
+}
+
+module.exports = {
+  calculateSum: calculateSum
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">operations.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function calculateSum(a, b) {
+  return (a + b) * 2;  // No conflict—this is private to operations.js
+}
+
+module.exports = {
+  calculateSum: calculateSum
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">main.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const math = require('./math.js');
+const operations = require('./operations.js');
+
+console.log(math.calculateSum(5, 3));         // 8
+console.log(operations.calculateSum(5, 3));   // 16</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Tip</div>
+              <p>Both files define <code>calculateSum</code>. Without modules, the second would silently win. With modules, each one is private to its file and only the exported name crosses the boundary.</p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li>A module is a file that owns its own scope — nothing leaks out unless you export it.</li>
+            <li>Modules keep related code together and unrelated code apart.</li>
+            <li>The global namespace stays clean, so two files can reuse the same function name safely.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 02 -->
+        <section id="commonjs">
+          <h2><span class="h2-num">02 — Section</span>CommonJS Syntax</h2>
+
+          <p>
+            <strong>CommonJS is a module system standardized for JavaScript outside the browser,
+            primarily used in Node.js.</strong> It uses two key mechanisms to define and consume
+            modules: <code>module.exports</code> to publish, and <code>require()</code> to consume.
+          </p>
+
+          <h3 id="module-exports"><code>module.exports</code> — exporting code</h3>
+
+          <p>
+            <strong><code>module.exports</code> is an object that defines what a module makes
+            available to the rest of your application.</strong> Anything assigned to it becomes
+            publicly accessible.
+          </p>
+
+          <h4>Example 1 — exporting a single function</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">greet.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+module.exports = greet;</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">app.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const greet = require('./greet.js');
+
+console.log(greet('Alice'));  // "Hello, Alice!"</code></pre>
+          </div>
+
+          <h4>Example 2 — exporting multiple functions as an object</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">calculator.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function add(a, b) {
+  return a + b;
+}
+
+function subtract(a, b) {
+  return a - b;
+}
+
+function multiply(a, b) {
+  return a * b;
+}
+
+module.exports = {
+  add: add,
+  subtract: subtract,
+  multiply: multiply
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">app.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const calc = require('./calculator.js');
+
+console.log(calc.add(10, 5));       // 15
+console.log(calc.subtract(10, 5));  // 5
+console.log(calc.multiply(10, 5));  // 50</code></pre>
+          </div>
+
+          <h4>Example 3 — exporting constructor functions (classes)</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">User.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">class User {
+  constructor(name, email) {
+    this.name = name;
+    this.email = email;
+  }
+
+  getInfo() {
+    return `${this.name} (${this.email})`;
+  }
+}
+
+module.exports = User;</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">app.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const User = require('./User.js');
+
+const user1 = new User('Alice', 'alice@example.com');
+console.log(user1.getInfo());  // "Alice (alice@example.com)"</code></pre>
+          </div>
+
+          <h3 id="require"><code>require()</code> — importing code</h3>
+
+          <p>
+            <strong><code>require()</code> is a function that loads and executes a module file, then
+            returns whatever that module exports.</strong> The path can be relative
+            (<code>./file</code>) or absolute (<code>/path/to/file</code>).
+          </p>
+
+          <h4>Example 1 — requiring a local module</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">utils.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">function formatDate(date) {
+  return date.toISOString().split('T')[0];
+}
+
+module.exports = { formatDate };</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">app.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const { formatDate } = require('./utils.js');
+
+console.log(formatDate(new Date()));  // "2026-09-23"</code></pre>
+          </div>
+
+          <h4>Example 2 — destructuring imports</h4>
+
+          <p>
+            CommonJS doesn't have destructuring built in, but you can destructure the returned
+            object right in your <code>require</code> statement.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">stringUtils.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">module.exports = {
+  uppercase: (str) => str.toUpperCase(),
+  lowercase: (str) => str.toLowerCase(),
+  capitalize: (str) => str.charAt(0).toUpperCase() + str.slice(1)
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">app.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const { uppercase, capitalize } = require('./stringUtils.js');
+
+console.log(uppercase('hello'));     // "HELLO"
+console.log(capitalize('hello'));    // "Hello"</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Watch out</div>
+              <p>Destructuring a single-function export breaks. If a module does <code>module.exports = greet</code>, then <code>const { greet } = require('./greet')</code> gives you <code>undefined</code> — because there is no <code>greet</code> property on the exported function. Destructure only when the module exports an object.</p>
+            </div>
+          </div>
+
+          <ul class="keypoints">
+            <li><code>module.exports</code> is the public surface of a file — reassign it, don't just mutate it, when exporting one thing.</li>
+            <li><code>require()</code> executes the target file and hands back its exports.</li>
+            <li>Relative paths start with <code>./</code> or <code>../</code>; bare names like <code>'lodash'</code> are resolved from <code>node_modules</code>.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 03 -->
+        <section id="loading">
+          <h2><span class="h2-num">03 — Section</span>Module Loading Behaviour</h2>
+
+          <p>
+            How a module is loaded matters as much as how it's written. Three behaviours explain
+            almost every surprise you'll hit: synchronous loading, caching, and circular
+            dependencies.
+          </p>
+
+          <h3 id="sync-loading">Synchronous loading</h3>
+
+          <p>
+            <strong>Node.js loads modules synchronously — the <code>require()</code> call blocks
+            execution until the module is fully loaded and evaluated.</strong> This is different
+            from browser-based module systems (ES modules) which can be asynchronous.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">logger.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.log('Logger module is being loaded...');
+
+module.exports = {
+  log: (message) => console.log(`[LOG] ${message}`)
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">app.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.log('App starting...');
+const logger = require('./logger.js');
+console.log('App loaded logger module');
+logger.log('This is a test message');</code></pre>
+          </div>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">terminal</span>
+              <span class="code-lang">output</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-plaintext">App starting...
+Logger module is being loaded...
+App loaded logger module
+[LOG] This is a test message</code></pre>
+          </div>
+
+          <p>
+            Notice the logger module's <code>console.log</code> runs <em>immediately</em> when
+            <code>require()</code> is called — it blocks the app's execution flow until the module
+            finishes evaluating.
+          </p>
+
+          <h3 id="caching">Module caching</h3>
+
+          <p>
+            <strong>Node.js caches modules after the first <code>require()</code>. Subsequent calls
+            return the cached module instead of re-executing it.</strong> This improves performance
+            and guarantees you get the same instance everywhere in your application.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">config.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.log('Config module loaded');
+
+module.exports = {
+  apiUrl: 'https://api.example.com',
+  version: '1.0.0'
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">app.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.log('First require:');
+const config1 = require('./config.js');
+
+console.log('Second require:');
+const config2 = require('./config.js');
+
+console.log('Are they the same object?', config1 === config2);  // true</code></pre>
+          </div>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">terminal</span>
+              <span class="code-lang">output</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-plaintext">First require:
+Config module loaded
+Second require:
+Are they the same object? true</code></pre>
+          </div>
+
+          <p>
+            The "Config module loaded" message appears only once because the module is cached. It's
+            the same object every time — which is why a shared config object or a database pool
+            stays consistent across your whole app.
+          </p>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Tip — the cache is your friend</div>
+              <p>Because the module runs exactly once, top-level side effects (opening a connection, reading a config file) happen once no matter how many files require it. But that also means editing a file mid-run changes nothing until you restart the process.</p>
+            </div>
+          </div>
+
+          <h3 id="circular">Circular dependencies</h3>
+
+          <p>
+            <strong>A circular dependency occurs when Module A requires Module B, and Module B
+            requires Module A.</strong> This can produce incomplete exports if you're not careful.
+          </p>
+
+          <h4>The problem</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">moduleA.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.log('moduleA starting');
+
+const moduleB = require('./moduleB.js');
+
+module.exports = {
+  name: 'Module A',
+  greeting: () => `Hello from A. B says: ${moduleB.name}`
+};
+
+console.log('moduleA loaded');</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">moduleB.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.log('moduleB starting');
+
+const moduleA = require('./moduleA.js');
+
+module.exports = {
+  name: 'Module B',
+  greeting: () => `Hello from B. A says: ${moduleA.name}`
+};
+
+console.log('moduleB loaded');</code></pre>
+          </div>
+
+          <div class="code-block is-output">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">terminal — node app.js</span>
+              <span class="code-lang">output</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-plaintext">moduleA starting
+moduleB starting
+moduleA loaded
+moduleB loaded
+Hello from A. B says: Module B</code></pre>
+          </div>
+
+          <p>
+            The circular dependency is resolved because Node.js returns a <strong>partially loaded
+            module</strong> when it detects the cycle. <code>moduleB</code> receives
+            <code>moduleA</code>'s incomplete exports (an empty object at that moment), then finishes
+            loading.
+          </p>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">The trap</div>
+              <p>If <code>moduleB</code> accessed <code>moduleA.name</code> at the <em>top level</em> instead of inside a function, it would read <code>undefined</code> — because at that moment <code>moduleA</code> hasn't finished assigning its exports yet. Deferring the access into a function (as above) sidesteps the problem.</p>
+            </div>
+          </div>
+
+          <h4>The fix — restructure to remove the cycle</h4>
+
+          <p>
+            The cleanest solution is to break the cycle by extracting the shared concern into a
+            neutral third module that neither depends on.
+          </p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">shared.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">module.exports = {
+  getModuleAName: () => 'Module A',
+  getModuleBName: () => 'Module B'
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">moduleA.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const shared = require('./shared.js');
+
+module.exports = {
+  name: shared.getModuleAName(),
+  greeting: () => `Hello from A. B says: ${shared.getModuleBName()}`
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">moduleB.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const shared = require('./shared.js');
+
+module.exports = {
+  name: shared.getModuleBName(),
+  greeting: () => `Hello from B. A says: ${shared.getModuleAName()}`
+};</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">app.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const moduleA = require('./moduleA.js');
+const moduleB = require('./moduleB.js');
+
+console.log(moduleA.greeting());  // "Hello from A. B says: Module B"
+console.log(moduleB.greeting());  // "Hello from B. A says: Module A"</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li><code>require()</code> is synchronous — it blocks until the module is evaluated.</li>
+            <li>A module is evaluated once; every later require returns the cached instance.</li>
+            <li>In a circular dependency you may receive a half-built module — break the cycle with a shared third module.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 04 -->
+        <section id="node-internals">
+          <h2><span class="h2-num">04 — Section</span>Node.js Modules Internals</h2>
+
+          <h3 id="wrapper">How Node.js implements CommonJS</h3>
+
+          <p>
+            <strong>Node.js wraps every module file in a function scope to prevent global namespace
+            pollution.</strong> When you write code in a module file, it is actually running inside
+            an invisible wrapper function.
+          </p>
+
+          <h4>The module wrapper</h4>
+
+          <p>Every Node.js module is internally wrapped like this:</p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">the invisible wrapper</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">(function (exports, require, module, __filename, __dirname) {
+  // Your actual code here
+});</code></pre>
+          </div>
+
+          <p>This wrapper provides five variables automatically available in every module:</p>
+
+          <ul>
+            <li><strong>exports</strong> — an alias for <code>module.exports</code></li>
+            <li><strong>require</strong> — the function that loads other modules</li>
+            <li><strong>module</strong> — the object representing the current module</li>
+            <li><strong>__filename</strong> — the absolute path of the current file</li>
+            <li><strong>__dirname</strong> — the absolute path of the current directory</li>
+          </ul>
+
+          <h4>Understanding the wrapper in practice</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">debug.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">console.log('__filename:', __filename);
+console.log('__dirname:', __dirname);
+console.log('module:', module);
+
+module.exports = { test: true };</code></pre>
+          </div>
+
+          <p>When you run <code>node debug.js</code>, Node.js effectively executes this:</p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">what Node actually runs</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">(function (exports, require, module, __filename, __dirname) {
+  console.log('__filename:', __filename);
+  console.log('__dirname:', __dirname);
+  console.log('module:', module);
+
+  module.exports = { test: true };
+})(module.exports, require, module, '/path/to/debug.js', '/path/to');</code></pre>
+          </div>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Going deeper — <code>exports</code> vs <code>module.exports</code></div>
+              <p>
+                Look again at those wrapper parameters: <code>exports</code> is just a function
+                argument that <em>starts out pointing at the same object</em> as
+                <code>module.exports</code>. So <code>exports.add = add</code> works — you're
+                mutating the shared object. But <code>exports = add</code> silently does nothing,
+                because you've only repointed the local parameter while
+                <code>module.exports</code> still holds the original object.
+              </p>
+              <p>
+                Rule of thumb: attach properties to <code>exports</code>, but reassign
+                <code>module.exports</code> when you're exporting a single value.
+              </p>
+            </div>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Why this matters</div>
+              <p>Because your code lives inside a function, top-level <code>var</code> and function declarations are local to the module — not global. It also explains why you can't use <code>return</code> at the top of a file to exit early... except that you actually can, because you <em>are</em> inside a function.</p>
+            </div>
+          </div>
+
+          <h3 id="node-modules-folder">The <code>node_modules</code> folder</h3>
+
+          <p>
+            <strong><code>node_modules</code> is where Node.js stores installed packages and
+            dependencies.</strong> When you run <code>npm install</code>, packages are downloaded
+            here. When you require a package by name (not by path), Node.js searches for it in
+            <code>node_modules</code>.
+          </p>
+
+          <h4>How Node.js resolves module paths</h4>
+
+          <p>When you write <code>require('lodash')</code>, Node.js follows this order:</p>
+
+          <ol>
+            <li>Check whether it's a <strong>built-in module</strong> (<code>fs</code>, <code>path</code>, <code>events</code>, <code>http</code>, and friends)</li>
+            <li>Look in <code>node_modules</code> in the current directory</li>
+            <li>Look in <code>node_modules</code> in the parent directory</li>
+            <li>Continue up the directory tree until reaching the filesystem root</li>
+            <li>If still not found, throw an error</li>
+          </ol>
+
+          <p>Here's how that looks on disk:</p>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">project structure</span>
+              <span class="code-lang">text</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-plaintext">project/
+├── node_modules/
+│   ├── lodash/
+│   │   ├── index.js
+│   │   └── package.json
+│   └── express/
+│       ├── index.js
+│       └── package.json
+├── src/
+│   ├── app.js
+│   └── utils.js
+└── package.json</code></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">src/app.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const lodash = require('lodash');        // Searches node_modules
+const utils = require('./utils.js');     // Relative path
+const path = require('path');            // Built-in module</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Tip — the upward walk</div>
+              <p>That upward search is why a package installed at the project root is usable from any nested folder. It's also why a stray <code>node_modules</code> higher up your filesystem can shadow a local install with an old version.</p>
+            </div>
+          </div>
+
+          <h3 id="package-json"><code>package.json</code> — the project manifest</h3>
+
+          <p>
+            <strong><code>package.json</code> is a JSON file that describes your Node.js project,
+            including its dependencies, scripts, metadata, and configuration.</strong>
+          </p>
+
+          <h4>A minimal <code>package.json</code></h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">package.json</span>
+              <span class="code-lang">json</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-json">{
+  "name": "my-app",
+  "version": "1.0.0",
+  "description": "A simple Node.js application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest"
+  },
+  "keywords": ["app", "node"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}</code></pre>
+          </div>
+
+          <h4>Key fields explained</h4>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Field</th><th>Purpose</th><th>Example</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>name</strong></td><td>The package name</td><td><code>"my-app"</code></td></tr>
+                <tr><td><strong>version</strong></td><td>Semantic versioning (major.minor.patch)</td><td><code>"1.0.0"</code></td></tr>
+                <tr><td><strong>description</strong></td><td>What the project does</td><td><code>"A simple Node.js application"</code></td></tr>
+                <tr><td><strong>main</strong></td><td>Entry point file</td><td><code>"index.js"</code></td></tr>
+                <tr><td><strong>scripts</strong></td><td>npm commands you can run</td><td><code>"start": "node index.js"</code></td></tr>
+                <tr><td><strong>dependencies</strong></td><td>Packages required for production</td><td><code>"express": "^4.18.2"</code></td></tr>
+                <tr><td><strong>devDependencies</strong></td><td>Packages needed only for development</td><td><code>"jest": "^29.7.0"</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4>Version specifiers</h4>
+
+          <ul>
+            <li><code>^4.18.2</code> — allows updates to minor and patch versions (<code>4.x.x</code> where <code>x &gt;= 18</code>)</li>
+            <li><code>~4.18.2</code> — allows only patch version updates (<code>4.18.x</code>)</li>
+            <li><code>4.18.2</code> — exact version, no updates</li>
+            <li><code>*</code> — any version</li>
+          </ul>
+
+          <ul class="keypoints">
+            <li>Your file is wrapped in a function with five injected variables — that's the whole trick.</li>
+            <li>Bare imports walk up the directory tree looking for <code>node_modules</code>.</li>
+            <li><code>package.json</code> records the entry point, scripts, and dependency ranges for your project.</li>
+          </ul>
+        </section>
+
+        <!-- ========================================================== 05 -->
+        <section id="builtins">
+          <h2><span class="h2-num">05 — Section</span>Built-in Modules</h2>
+
+          <p>
+            Node.js ships with several <strong>built-in modules</strong> (also called core modules)
+            that you can require without installing anything. Here are the four you'll reach for
+            most often.
+          </p>
+
+          <h3 id="fs">File system — <code>fs</code></h3>
+
+          <p>
+            <strong>The <code>fs</code> module provides functions to read, write, and manipulate
+            files on the filesystem.</strong> Most operations come in a blocking (sync) flavour and a
+            non-blocking (callback, or promise) flavour.
+          </p>
+
+          <h4>Example 1 — reading a file (synchronous)</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">read-file-sync.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const fs = require('fs');
+
+const content = fs.readFileSync('./data.txt', 'utf8');
+console.log('File content:', content);
+console.log('This line waits for the file to be read');</code></pre>
+          </div>
+
+          <p><strong>Use cases:</strong> small configuration files, initial data loading at startup.</p>
+
+          <div class="callout is-warn">
+            <div class="c-ico" aria-hidden="true">!</div>
+            <div class="c-body">
+              <div class="c-title">Drawback — it blocks</div>
+              <p><code>readFileSync</code> blocks the entire application while reading. In a server that means every other request waits behind it. Reach for the async form on any request-handling path.</p>
+            </div>
+          </div>
+
+          <h4>Example 2 — reading a file (asynchronous with callback)</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">read-file-async.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const fs = require('fs');
+
+fs.readFile('./data.txt', 'utf8', (error, content) => {
+  if (error) {
+    console.error('Error reading file:', error.message);
+    return;
+  }
+  console.log('File content:', content);
+});
+
+console.log('This line executes immediately without waiting');</code></pre>
+          </div>
+
+          <p><strong>Benefit:</strong> doesn't block — the rest of your program keeps running while the file is read.</p>
+
+          <h4>Example 3 — writing to a file</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">write-file.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const fs = require('fs');
+
+const data = 'Hello, this is file content!\nLine 2\nLine 3';
+
+fs.writeFile('./output.txt', data, 'utf8', (error) => {
+  if (error) {
+    console.error('Error writing file:', error.message);
+    return;
+  }
+  console.log('File written successfully');
+});</code></pre>
+          </div>
+
+          <h4>Example 4 — appending to a file</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">append-file.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const fs = require('fs');
+
+fs.appendFile('./log.txt', 'New log entry\n', 'utf8', (error) => {
+  if (error) throw error;
+  console.log('Data appended to log.txt');
+});</code></pre>
+          </div>
+
+          <h4>Example 5 — listing directory contents</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">list-files.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const fs = require('fs');
+
+fs.readdir('./', (error, files) => {
+  if (error) {
+    console.error('Error reading directory:', error.message);
+    return;
+  }
+  console.log('Files in current directory:');
+  files.forEach(file => console.log(`  - ${file}`));
+});</code></pre>
+          </div>
+
+          <h4>Example 6 — checking file stats (size, creation time, etc.)</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">file-stats.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const fs = require('fs');
+
+fs.stat('./data.txt', (error, stats) => {
+  if (error) {
+    console.error('Error:', error.message);
+    return;
+  }
+  console.log('File size:', stats.size, 'bytes');
+  console.log('Created:', stats.birthtime);
+  console.log('Modified:', stats.mtime);
+  console.log('Is directory?', stats.isDirectory());
+  console.log('Is file?', stats.isFile());
+});</code></pre>
+          </div>
+
+          <h3 id="path">Path utilities — <code>path</code></h3>
+
+          <p>
+            <strong>The <code>path</code> module provides utilities for working with file and
+            directory paths across different operating systems.</strong> Windows uses backslashes,
+            POSIX systems use forward slashes — <code>path</code> hides that difference from you.
+          </p>
+
+          <h4>Example 1 — joining paths</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">path-join.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const path = require('path');
+
+const fullPath = path.join(__dirname, 'data', 'users.json');
+console.log('Full path:', fullPath);
+// On Windows: C:\projects\myapp\data\users.json
+// On Linux:   /projects/myapp/data/users.json</code></pre>
+          </div>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Tip — never concatenate paths by hand</div>
+              <p>Writing <code>__dirname + '/data/' + file</code> breaks on Windows and chokes on duplicate or missing separators. <code>path.join()</code> inserts the correct separator for the current platform and normalises the result.</p>
+            </div>
+          </div>
+
+          <h4>Example 2 — resolving to an absolute path</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">path-resolve.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const path = require('path');
+
+// resolve() builds an absolute path and walks .. segments for you
+console.log(path.resolve('src', '..', 'config', 'app.json'));
+// On Linux: /current/working/dir/config/app.json
+
+// join() only glues segments together; it stays relative
+console.log(path.join('src', '..', 'config', 'app.json'));
+// config/app.json</code></pre>
+          </div>
+
+          <h4>Example 3 — pulling a path apart</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">path-parts.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const path = require('path');
+
+const file = '/users/alice/docs/report.final.pdf';
+
+console.log(path.basename(file));  // "report.final.pdf"
+console.log(path.dirname(file));   // "/users/alice/docs"
+console.log(path.extname(file));   // ".pdf"
+
+// basename with a second argument strips that suffix
+console.log(path.basename(file, '.pdf'));  // "report.final"</code></pre>
+          </div>
+
+          <h4>Example 4 — parsing into an object</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">path-parse.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const path = require('path');
+
+const parsed = path.parse('/users/alice/report.pdf');
+
+console.log(parsed);
+// {
+//   root: '/',
+//   dir: '/users/alice',
+//   base: 'report.pdf',
+//   ext: '.pdf',
+//   name: 'report'
+// }
+
+// format() is the inverse of parse()
+console.log(path.format({ dir: '/users/alice', name: 'summary', ext: '.md' }));
+// "/users/alice/summary.md"</code></pre>
+          </div>
+
+          <h4>Example 5 — normalising messy paths</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">path-normalize.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const path = require('path');
+
+console.log(path.normalize('/users//alice/./docs/../report.pdf'));
+// "/users/alice/report.pdf"
+
+// Useful for turning a filesystem path into a URL path
+console.log('/static/' + path.relative('/users/alice', '/users/alice/img/logo.png'));
+// "/static/img/logo.png"</code></pre>
+          </div>
+
+          <h4>Try the real <code>path</code> module</h4>
+
+          <p>
+            <code>path</code> is pure logic &mdash; no filesystem access &mdash; so it works perfectly in a
+            browser. The playground below runs a genuine implementation, not a mock:
+          </p>
+
+          <div class="playground" data-playground data-entry="path-demo.js">
+            <div class="pg-bar">
+              <span class="pg-badge"><i></i> path sandbox</span>
+              <div class="pg-tabs">
+                <button class="pg-tab" type="button" data-file="path-demo.js">path-demo.js</button>
+              </div>
+              <div class="pg-actions">
+                <button class="pg-btn pg-clear" type="button">Clear</button>
+                <button class="pg-btn pg-reset" type="button">Reset</button>
+                <button class="pg-btn pg-btn-run pg-run" type="button">Run &#9654;</button>
+              </div>
+            </div>
+
+            <div class="pg-editors">
+              <div class="pg-editor is-active" data-name="path-demo.js">
+                <textarea rows="14">const path = require('path');
+
+console.log(path.join('src', 'components', 'Button.jsx'));
+
+const file = '/users/alice/report.final.pdf';
+console.log(path.basename(file));
+console.log(path.dirname(file));
+console.log(path.extname(file));
+
+console.log(path.normalize('/users//alice/./docs/../report.pdf'));
+
+console.log(path.parse(file));
+
+console.log('/static/' + path.relative('/users/alice', '/users/alice/img/logo.png'));</textarea>
+              </div>
+            </div>
+
+            <div class="pg-out-wrap">
+              <div class="pg-out-label">console output</div>
+              <div class="pg-out"></div>
+            </div>
+          </div>
+
+          <h3 id="http-events">Also worth knowing — <code>http</code> and <code>events</code></h3>
+
+          <p>
+            Two more built-ins show up constantly in real Node code. They also demonstrate why
+            modules matter: both are loaded with a bare <code>require()</code> and neither needs
+            installing.
+          </p>
+
+          <h4><code>http</code> — a server in ten lines</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">server.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const http = require('http');
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Hello from a built-in module\n');
+});
+
+server.listen(3000, () => {
+  console.log('Server running at http://localhost:3000');
+});</code></pre>
+          </div>
+
+          <h4><code>events</code> — the EventEmitter pattern</h4>
+
+          <div class="code-block">
+            <div class="code-head">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-file">events.js</span>
+              <span class="code-lang">javascript</span>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+<pre><code class="language-javascript">const EventEmitter = require('events');
+
+const emitter = new EventEmitter();
+
+emitter.on('greet', (name) => {
+  console.log(`Hello, ${name}!`);
+});
+
+emitter.emit('greet', 'Alice');  // "Hello, Alice!"</code></pre>
+          </div>
+
+          <ul class="keypoints">
+            <li><code>fs</code> covers files and directories — prefer the async form on hot paths.</li>
+            <li><code>path</code> makes your path handling work on every operating system.</li>
+            <li><code>http</code> and <code>events</code> are the foundation the rest of the Node ecosystem is built on.</li>
+          </ul>
+        </section>
+
+        <!-- =================================================== PLAYGROUND -->
+        <section id="playground">
+          <h2><span class="h2-num">Playground</span>Run it yourself</h2>
+
+          <p>
+            Below is a real, working CommonJS environment &mdash; in this browser tab, no install and
+            no server. It resolves relative paths, executes the wrapper function, and keeps a module
+            cache, so the behaviour you read about above is the behaviour you get here.
+          </p>
+
+          <div class="callout is-tip">
+            <div class="c-ico" aria-hidden="true">i</div>
+            <div class="c-body">
+              <div class="c-title">Things worth trying</div>
+              <p>
+                Delete the second <code>require('./config.js')</code> and watch the "loaded" line
+                appear twice. Rename <code>./math.js</code> to <code>./maths.js</code> and read the
+                error. Add a <code>require('./config.js')</code> <em>inside</em> <code>config.js</code>
+                and observe what a circular dependency does to the exports.
+              </p>
+            </div>
+          </div>
+
+          <div class="playground" data-playground data-entry="main.js">
+            <div class="pg-bar">
+              <span class="pg-badge"><i></i> CommonJS sandbox</span>
+              <div class="pg-tabs">
+                <button class="pg-tab" type="button" data-file="main.js">main.js</button>
+                <button class="pg-tab" type="button" data-file="config.js">config.js</button>
+                <button class="pg-tab" type="button" data-file="math.js">math.js</button>
+              </div>
+              <div class="pg-actions">
+                <button class="pg-btn pg-clear" type="button">Clear</button>
+                <button class="pg-btn pg-reset" type="button">Reset</button>
+                <button class="pg-btn pg-btn-run pg-run" type="button">Run &#9654;</button>
+              </div>
+            </div>
+
+            <div class="pg-editors">
+              <div class="pg-editor is-active" data-name="main.js">
+                <textarea rows="11">// main.js is the entry point.
+const config = require('./config.js');
+const math = require('./math.js');
+
+console.log('main.js body continues');
+
+// Second require hits the cache — no second "loaded" line.
+const configAgain = require('./config.js');
+console.log('same object?', configAgain === config);
+
+console.log('sum:', math.calculateSum(5, 3));</textarea>
+              </div>
+
+              <div class="pg-editor" data-name="config.js">
+                <textarea rows="11">console.log('config.js loaded');
+
+module.exports = {
+  apiUrl: 'https://api.example.com',
+  version: '1.0.0'
+};</textarea>
+              </div>
+
+              <div class="pg-editor" data-name="math.js">
+                <textarea rows="11">console.log('math.js loaded');
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+module.exports = { calculateSum };</textarea>
+              </div>
+            </div>
+
+            <div class="pg-out-wrap">
+              <div class="pg-out-label">console output</div>
+              <div class="pg-out"></div>
+            </div>
+          </div>
+
+          <div class="pg-meta">
+            <span>The trailing line shows the real <strong>load order</strong> of each module.</span>
+            <span><code>Ctrl</code>+<code>Enter</code> runs.</span>
+          </div>
+        </section>
+
+        <!-- =================================================== CHECKPOINT -->
+        <section id="checkpoint">
+          <h2><span class="h2-num">Checkpoint</span>Test yourself</h2>
+
+          <p>Three questions. Click an answer to check it — the explanation appears underneath.</p>
+
+          <div class="quiz">
+            <div class="quiz-head">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Module &amp; CommonJS checkpoint
+            </div>
+            <div class="quiz-body">
+
+              <div class="quiz-q">
+                <p class="q-text">1. You require the same module twice in one process. What happens the second time?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> The file is executed again from the top.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> The cached exports from the first load are returned.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> Node throws a "module already loaded" error.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> It returns a fresh copy so you can't mutate shared state.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. Node caches the module after the first require, so you get the exact same object back — which is why shared config and connection pools stay consistent.</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">2. Which variables does the Node module wrapper inject into every file?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> window, document, global, process</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">B</span> import, export, default, meta</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">C</span> exports, require, module, __filename, __dirname</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> module, exports, global, __path</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>C</strong>. Those five are the parameters of the invisible wrapper function. <code>__dirname</code> and <code>__filename</code> are absolute paths on the current machine.</p>
+              </div>
+
+              <div class="quiz-q">
+                <p class="q-text">3. Module A requires B, and B requires A. What does B receive for A?</p>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">A</span> Nothing — Node aborts the process with a cycle error.</button>
+                  <button class="quiz-opt" type="button" data-correct="true"><span class="k">B</span> A's partially built exports, which may be an empty object at that point.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">C</span> A completely loaded version, because Node loads depth-first.</button>
+                  <button class="quiz-opt" type="button" data-correct="false"><span class="k">D</span> A promise that resolves once A finishes loading.</button>
+                </div>
+                <p class="quiz-explain">Correct answer: <strong>B</strong>. Node hands back the in-progress exports to break the deadlock. Access them lazily (inside a function) to avoid reading <code>undefined</code>.</p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </article>
+
+      <!-- ========================================================== OUTRO -->
+      <div class="lesson-outro">
+        <h2>What you can do now</h2>
+        <p style="color:var(--text-soft);font-size:15.5px;">
+          You can split a program into modules, export exactly what you mean to, explain why
+          <code>require()</code> blocks, predict what the cache will do, and untangle a circular
+          dependency instead of praying. That's the foundation every Node codebase sits on.
+        </p>
+
+        <div class="pager">
+          <a href="../index.html">
+            <span class="p-dir">&larr; Previous</span>
+            <span class="p-title">Course home</span>
+          </a>
+          <a class="next" href="02-async-and-the-event-loop.html">
+            <span class="p-dir">Next &rarr;</span>
+            <span class="p-title">Category 2 — Async JavaScript &amp; the Event Loop</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</main>
+
+<button class="to-top" type="button" aria-label="Back to top">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>&copy; <span data-year>2026</span> Master the JavaScript &middot; Category 01 of the course.</span>
+    <nav class="footer-links" aria-label="Course index">
+      <a href="../index.html">Home</a>
+      <a href="01-module-fundamentals.html">01 Modules</a>
+      <a href="02-async-and-the-event-loop.html">02 Async</a>
+      <a href="03-objects-prototypes-classes.html">03 Objects</a>
+      <a href="04-modern-tooling-and-esm.html">04 Tooling</a>
+      <a href="05-advanced-patterns.html">05 Advanced</a>
+      <a href="https://github.com/madhavabrightly/Master-the-javascript" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  if (window.hljs) { hljs.highlightAll(); }
+</script>
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/lesson.js"></script>
+<script src="../assets/js/playground.js"></script>
+</body>
+</html>
